@@ -1,0 +1,66 @@
+<header class="mb-4">
+  <button type="button" class="ui-btn-ghost mb-2" (click)="cancelar()">← Formularios</button>
+  <p class="ui-kicker">Gestion de evaluaciones</p>
+  <h2 class="ui-section-title">Nuevo formulario de evaluacion</h2>
+  <p class="ui-lead">Completa los datos y guarda. Despues te redirigiremos al formulario donde podras agregar preguntas.</p>
+</header>
+
+<article class="ui-card max-w-3xl">
+  <div class="ui-card-body">
+  <app-problem-banner />
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+
+    <label class="form-control w-full">
+      <span class="label"><span class="ui-label">Nombre *</span></span>
+      <input class="ui-input"
+        formControlName="nombre"
+        placeholder="Ej: Evaluacion Backend .NET"
+        autocomplete="off"
+      />
+      @if (form.controls.nombre.invalid && form.controls.nombre.touched) {
+        <small class="text-error text-xs">El nombre es requerido (maximo 200 caracteres).</small>
+      }
+    </label>
+
+    <label class="form-control w-full">
+      <span class="label"><span class="ui-label">Descripcion</span></span>
+      <textarea class="ui-textarea"
+        formControlName="descripcion"
+        rows="4"
+        placeholder="Contexto o instrucciones adicionales (opcional)"
+      ></textarea>
+    </label>
+
+    <fieldset class="fieldset border border-base-300 rounded-box p-4">
+      <legend class="fieldset-legend">Orden de preguntas</legend>
+
+      <label class="label cursor-pointer justify-start gap-3">
+        <input class="checkbox checkbox-primary" type="checkbox" formControlName="ordenAleatorio" />
+        <span>Orden aleatorio</span>
+      </label>
+
+      <label class="label cursor-pointer justify-start gap-3">
+        <input class="checkbox checkbox-primary" type="checkbox" formControlName="ordenPorDificultad" />
+        <span>Orden por dificultad (facil → dificil)</span>
+      </label>
+
+      @if (ordenIncompatible) {
+        <small class="text-error text-xs">No se pueden activar ambos ordenes a la vez.</small>
+      }
+    </fieldset>
+
+    <div class="flex gap-3 justify-end pt-2">
+      <button type="button" class="ui-btn-ghost" (click)="cancelar()">Cancelar</button>
+      <button class="ui-btn-primary" type="submit" [disabled]="form.invalid || submitting() || ordenIncompatible">
+        @if (submitting()) {
+          Guardando...
+        } @else {
+          Crear formulario
+        }
+      </button>
+    </div>
+
+  </form>
+  </div>
+</article>

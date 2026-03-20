@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	--font-body: 'Manrope', 'Segoe UI', sans-serif;
+	--font-accent: 'IBM Plex Mono', 'Consolas', monospace;
+
+	/* Paleta corporativa base */
+	--brand-red: #BD2F37;
+	--brand-blue: #1E386E;
+	--brand-rose: #963D4C;
+	--brand-indigo: #32406C;
+	--brand-crimson: #BD2F37;
+
+	/* Tema claro */
+	--bg-app: #f4f6fb;
+	--bg-elevated: #ffffff;
+	--bg-soft: #eef1f8;
+	--text-primary: #1f2937;
+	--text-muted: #596273;
+	--border-subtle: rgba(30, 56, 110, 0.16);
+	--shadow-soft: 0 14px 32px rgba(30, 56, 110, 0.12);
+	--accent-strong: var(--brand-blue);
+	--accent-contrast: #ffffff;
+	--status-ok-bg: rgba(30, 56, 110, 0.1);
+	--status-ok-text: #1E386E;
+	--danger-bg: rgba(189, 47, 55, 0.12);
+	--danger-text: #7f1e2b;
+	--surface-card: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
+	--surface-card-strong: color-mix(in srgb, var(--bg-elevated) 96%, transparent);
+	--surface-input: color-mix(in srgb, var(--bg-elevated) 94%, transparent);
+	--btn-primary-from: var(--brand-blue);
+	--btn-primary-to: var(--brand-indigo);
+	--focus-ring: rgba(30, 56, 110, 0.32);
+	--callout-info-bg: rgba(30, 56, 110, 0.12);
+	--callout-info-border: rgba(30, 56, 110, 0.35);
+	--callout-info-text: #16325f;
+}
+
+:root[data-theme='dark'] {
+	--bg-app: #141a2a;
+	--bg-elevated: #1d2438;
+	--bg-soft: #242d45;
+	--text-primary: #e5e7eb;
+	--text-muted: #b9c1d2;
+	--border-subtle: rgba(227, 233, 247, 0.2);
+	--shadow-soft: 0 14px 32px rgba(0, 0, 0, 0.34);
+	--accent-strong: #8eb0ff;
+	--accent-contrast: #ffffff;
+	--status-ok-bg: rgba(30, 56, 110, 0.35);
+	--status-ok-text: #c8d9ff;
+	--danger-bg: rgba(189, 47, 55, 0.24);
+	--danger-text: #ffd7dc;
+	--surface-card: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+	--surface-card-strong: color-mix(in srgb, var(--bg-elevated) 94%, transparent);
+	--surface-input: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+	--btn-primary-from: #3a5fa8;
+	--btn-primary-to: #32406C;
+	--focus-ring: rgba(142, 176, 255, 0.42);
+	--callout-info-bg: rgba(30, 56, 110, 0.35);
+	--callout-info-border: rgba(142, 176, 255, 0.5);
+	--callout-info-text: #d6e2ff;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	min-height: 100%;
+}
+
+body {
+	font-family: var(--font-body);
+	color: var(--text-primary);
+	background: var(--bg-app);
+	transition: background-color 180ms ease, color 180ms ease;
+}
+
+button,
+input,
+textarea {
+	font-family: inherit;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+	outline: 2px solid var(--focus-ring);
+	outline-offset: 2px;
+}
+
+@layer components {
+	.ui-page {
+		@apply p-4 md:p-6;
+	}
+
+	.ui-section-title {
+		@apply text-xl md:text-2xl font-semibold text-base-content;
+	}
+
+	.ui-card {
+		@apply card bg-base-100 border border-base-300 shadow-sm;
+	}
+
+	.ui-card-body {
+		@apply card-body p-4 md:p-6;
+	}
+
+	.ui-kicker {
+		@apply uppercase tracking-widest text-xs text-primary font-semibold;
+	}
+
+	.ui-lead {
+		@apply text-sm text-base-content/70;
+	}
+
+	.ui-btn-primary {
+		@apply btn btn-primary normal-case font-semibold;
+	}
+
+	.ui-btn-secondary {
+		@apply btn btn-secondary normal-case font-semibold;
+	}
+
+	.ui-btn-ghost {
+		@apply btn btn-ghost normal-case font-medium;
+	}
+
+	.ui-input {
+		@apply input input-bordered w-full bg-base-100;
+	}
+
+	.ui-select {
+		@apply select select-bordered w-full bg-base-100;
+	}
+
+	.ui-textarea {
+		@apply textarea textarea-bordered w-full bg-base-100;
+	}
+
+	.ui-label {
+		@apply label-text text-sm font-medium text-base-content;
+	}
+}

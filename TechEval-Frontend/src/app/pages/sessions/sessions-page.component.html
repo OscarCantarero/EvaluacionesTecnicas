@@ -1,0 +1,239 @@
+<section class="ui-card">
+  <div class="ui-card-body">
+  <h2 class="ui-section-title flex items-center gap-2">
+    <span [innerHTML]="icons.play | safeHtml"></span> Sesiones en vivo
+  </h2>
+  <p class="ui-lead">
+    Administra sesiones en vivo, crea accesos para candidatos y consulta resultados en tiempo real.
+  </p>
+
+  <app-problem-banner />
+
+  @if (loadingOpciones()) {
+    <div class="flex items-center gap-2 py-4">
+      <span class="loading loading-spinner loading-sm"></span>
+      <span class="text-base-content/70 text-sm">Cargando evaluaciones y candidatos…</span>
+    </div>
+  } @else {
+    <div class="flex gap-2 mb-5">
+      <button type="button" class="ui-btn-ghost" [class.ui-btn-primary]="!modoMasivo()" (click)="modoMasivo.set(false)">
+        <span [innerHTML]="icons.users | safeHtml" class="inline mr-1"></span> Sesión individual
+      </button>
+      <button type="button" class="ui-btn-ghost" [class.ui-btn-primary]="modoMasivo()" (click)="modoMasivo.set(true)">
+        <span [innerHTML]="icons.clipboard | safeHtml" class="inline mr-1"></span> Asignación masiva
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="modoMasivo() ? crearSesionesMasivas() : crearSesion()" novalidate class="session-form">
+      <div class="ui-card bg-base-200/50">
+        <div class="ui-card-body p-4">
+          <p class="text-sm font-medium text-base-content mb-1">1. Selecciona la evaluación</p>
+          <p class="text-xs text-base-content/50 mb-2">Elige el formulario de preguntas que el candidato deberá responder.</p>
+          <select class="ui-select" formControlName="evaluacionId">
+            <option value="" disabled>Selecciona una evaluación</option>
+            @for (ev of evaluaciones(); track ev.id) {
+              <option [value]="ev.id">{{ ev.nombre }} ({{ ev.totalPreguntas }} preguntas · {{ ev.estado | label }})</option>
+            }
+          </select>
+          @if (evaluaciones().length === 0) {
+            <span class="text-xs text-warning mt-1">No hay evaluaciones disponibles. <a routerLink="/formularios/nuevo" class="link">Crea una aquí.</a></span>
+          }
+        </div>
+      </div>
+
+      @if (!modoMasivo()) {
+        <div class="ui-card bg-base-200/50">
+          <div class="ui-card-body p-4">
+            <p class="text-sm font-medium text-base-content mb-1">2. Selecciona el candidato</p>
+            <p class="text-xs text-base-content/50 mb-2">Elige quién recibirá el código de acceso para iniciar la evaluación.</p>
+            <select class="ui-select" formControlName="candidatoId">
+              <option value="" disabled>Selecciona un candidato</option>
+              @for (c of candidatos(); track c.id) {
+                <option [value]="c.id">{{ c.nombre }} ({{ c.email }})</option>
+              }
+            </select>
+            @if (candidatos().length === 0) {
+              <span class="text-xs text-warning mt-1">No hay candidatos registrados. <a routerLink="/usuarios" class="link">Regístra uno aquí.</a></span>
+            }
+          </div>
+        </div>
+
+        <button class="ui-btn-primary" type="submit" [disabled]="!canSubmit()">
+          @if (isSubmitting()) {
+            <span class="loading loading-spinner loading-xs"></span> Creando sesión…
+          } @else {
+            <span [innerHTML]="icons.plus | safeHtml" class="inline mr-1"></span> Crear sesión
+          }
+        </button>
+      } @else {
+        <div class="ui-card bg-base-200/50">
+          <div class="ui-card-body p-4">
+            <p class="text-sm font-medium text-base-content mb-1">2. Selecciona los candidatos</p>
+            <p class="text-xs text-base-content/50 mb-2">Marca a todos los candidatos que deben presentar esta evaluación.</p>
+            <div class="flex gap-2 mb-2">
+              <button type="button" class="btn btn-xs btn-outline btn-primary" (click)="seleccionarTodos()">
+                <span [innerHTML]="icons.check | safeHtml" class="inline mr-1"></span> Seleccionar todos
+              </button>
+              <button type="button" class="btn btn-xs btn-outline" (click)="deseleccionarTodos()">Deseleccionar todos</button>
+              <span class="badge badge-primary badge-sm ml-auto">{{ candidatosSeleccionados().size }} seleccionados</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-48 overflow-y-auto border border-base-300 rounded-box p-2 bg-base-100">
+              @for (c of candidatos(); track c.id) {
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-base-200 px-2 py-1 rounded">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary"
+                    [checked]="candidatosSeleccionados().has(c.id)"
+                    (change)="toggleCandidato(c.id)" />
+                  <span class="text-sm text-base-content">{{ c.nombre }} <span class="text-base-content/50">({{ c.email }})</span></span>
+                </label>
+              }
+            </div>
+          </div>
+        </div>
+
+        <button class="ui-btn-primary" type="submit" [disabled]="!canSubmitBulk()">
+          @if (isSubmitting()) {
+            <span class="loading loading-spinner loading-xs"></span> Creando sesiones…
+          } @else {
+            <span [innerHTML]="icons.plus | safeHtml" class="inline mr-1"></span> Crear {{ candidatosSeleccionados().size }} sesiones
+          }
+        </button>
+      }
+    </form>
+  }
+
+  @if (creationResult(); as result) {
+    <article class="ui-card mt-5 border-2 border-success">
+      <div class="ui-card-body">
+        <h3 class="flex items-center gap-2 text-success font-semibold text-lg">
+          <span [innerHTML]="icons.check | safeHtml"></span> Sesión creada exitosamente
+        </h3>
+        <div class="grid sm:grid-cols-2 gap-4 mt-3">
+          <div class="bg-base-200 rounded-box p-3">
+            <span class="text-xs uppercase tracking-wider text-base-content/60">Sesión ID</span>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="font-mono text-sm text-base-content break-all">{{ result.sesionId }}</span>
+              <button type="button" class="btn btn-xs btn-ghost" title="Copiar ID" (click)="copiarTexto(result.sesionId)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1z"/><path d="M6 3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2 3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="bg-primary/10 rounded-box p-3">
+            <span class="text-xs uppercase tracking-wider text-base-content/60">Código de acceso</span>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="font-mono font-bold text-xl text-primary">{{ result.codigoAcceso }}</span>
+              <button type="button" class="btn btn-xs btn-ghost" title="Copiar código" (click)="copiarTexto(result.codigoAcceso)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1z"/><path d="M6 3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2 3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-base-content/50 mt-3">Comparte el código de acceso con el candidato para que inicie su evaluación.</p>
+      </div>
+    </article>
+  }
+
+  @if (bulkResult(); as bulk) {
+    <article class="ui-card mt-5 border-2 border-success">
+      <div class="ui-card-body">
+        <h3 class="flex items-center gap-2 text-success font-semibold text-lg">
+          <span [innerHTML]="icons.check | safeHtml"></span> {{ bulk.totalCreadas }} sesiones creadas
+        </h3>
+        <div class="overflow-x-auto mt-3">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th class="text-base-content">Candidato ID</th>
+                <th class="text-base-content">Código de acceso</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of bulk.sesiones; track s.sesionId) {
+                <tr>
+                  <td class="text-xs font-mono text-base-content">{{ s.candidatoId }}</td>
+                  <td class="font-mono font-bold text-primary">{{ s.codigoAcceso }}</td>
+                  <td>
+                    <button type="button" class="btn btn-xs btn-ghost" title="Copiar código" (click)="copiarTexto(s.codigoAcceso)">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1z"/><path d="M6 3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2 3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z"/></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+  }
+
+  <section class="sessions-list">
+    <div class="list-head">
+      <h3 class="flex items-center gap-2"><span [innerHTML]="icons.clipboard | safeHtml"></span> Sesiones</h3>
+      <button type="button" class="ui-btn-ghost" (click)="cargarSesiones()" [disabled]="loadingList()">
+        <span [innerHTML]="icons.refresh | safeHtml" class="inline mr-1"></span> Refrescar
+      </button>
+    </div>
+
+    <div class="flex flex-wrap gap-3 items-end mb-4">
+      <label class="form-control w-full max-w-xs">
+        <span class="label"><span class="text-xs ui-label">Buscar por evaluación</span></span>
+        <input class="ui-input" type="text" [(ngModel)]="filtroBusqueda" placeholder="Título…" (keyup.enter)="filtrar()" />
+      </label>
+      <label class="form-control w-full max-w-xs">
+        <span class="label"><span class="text-xs ui-label">Estado</span></span>
+        <select class="ui-select" [(ngModel)]="filtroEstado" (ngModelChange)="filtrar()">
+          <option value="">Todos</option>
+          <option value="NoIniciada">No iniciada</option>
+          <option value="EnProgreso">En progreso</option>
+          <option value="Completada">Completada</option>
+          <option value="Cancelada">Cancelada</option>
+        </select>
+      </label>
+      <button type="button" class="ui-btn-ghost" (click)="filtrar()">
+        <span [innerHTML]="icons.filter | safeHtml" class="inline mr-1"></span> Filtrar
+      </button>
+    </div>
+
+    @if (loadingList()) {
+      <div class="flex items-center gap-2 py-4">
+        <span class="loading loading-spinner loading-sm"></span>
+        <span class="text-base-content/70">Cargando sesiones…</span>
+      </div>
+    } @else if (sesiones().length === 0) {
+      <div class="text-center py-8 text-base-content/50">
+        <span [innerHTML]="icons.clipboard | safeHtml" class="opacity-30" style="transform: scale(2.5); display: inline-block; margin-bottom: 1rem;"></span>
+        <p>No hay sesiones disponibles.</p>
+      </div>
+    } @else {
+      <ul>
+        @for (sesion of sesiones(); track sesion.sesionId) {
+          <li class="session-item bg-base-100 border border-base-300 rounded-box">
+            <div>
+              <p><strong>{{ sesion.evaluacionTitulo }}</strong></p>
+              <small class="text-base-content/70">
+                <span class="badge badge-sm badge-outline mr-1">{{ sesion.estado | label }}</span>
+                · {{ sesion.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}
+              </small>
+            </div>
+            <button type="button" class="ui-btn-ghost" (click)="verResultado(sesion.sesionId)">
+              <span [innerHTML]="icons.eye | safeHtml" class="inline mr-1"></span> Ver resultado
+            </button>
+          </li>
+        }
+      </ul>
+
+      @if (totalPaginas() > 1) {
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <button type="button" class="ui-btn-ghost" [disabled]="pagina() <= 1" (click)="irPagina(pagina() - 1)">
+            <span [innerHTML]="icons.chevronLeft | safeHtml"></span> Anterior
+          </button>
+          <span class="text-sm text-base-content/70">Página {{ pagina() }} de {{ totalPaginas() }} ({{ totalItems() }} sesiones)</span>
+          <button type="button" class="ui-btn-ghost" [disabled]="pagina() >= totalPaginas()" (click)="irPagina(pagina() + 1)">
+            Siguiente <span [innerHTML]="icons.chevronRight | safeHtml"></span>
+          </button>
+        </div>
+      }
+    }
+  </section>
+  </div>
+</section>

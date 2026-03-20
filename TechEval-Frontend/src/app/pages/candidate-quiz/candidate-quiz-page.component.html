@@ -1,0 +1,135 @@
+<section class="quiz-page">
+  <div class="mb-4">
+    <a class="ui-btn-secondary" routerLink="/dashboard">← Regresar al inicio</a>
+  </div>
+  <header class="ui-card">
+    <div class="ui-card-body">
+    <p class="ui-kicker">Cuestionario en vivo</p>
+    <h2 class="ui-section-title">Sesion {{ sesionId() }}</h2>
+    <div class="flex flex-wrap items-center gap-4 mt-2">
+      <div class="flex items-center gap-2">
+        <progress class="progress progress-primary w-32" [value]="progreso().respondidas" [max]="progreso().total"></progress>
+        <span class="text-sm text-base-content/70">{{ progreso().respondidas }} / {{ progreso().total }}</span>
+      </div>
+      @if (tiempoRestante() !== null) {
+        <span class="badge badge-lg font-mono" [class.badge-error]="(tiempoRestante() ?? 0) <= 10" [class.badge-warning]="(tiempoRestante() ?? 0) > 10 && (tiempoRestante() ?? 0) <= 30">
+          {{ tiempoRestante() }}s
+        </span>
+      }
+    </div>
+    </div>
+  </header>
+
+  <app-problem-banner />
+
+  @if (errorSesion(); as errorMsg) {
+    <article class="ui-card border-2 border-error">
+      <div class="ui-card-body">
+        <h3 class="text-error font-semibold">Error al cargar sesión</h3>
+        <p class="text-base-content/80 text-sm">{{ errorMsg }}</p>
+        <a class="ui-btn-secondary mt-3" routerLink="/candidato/acceso">Intentar de nuevo</a>
+      </div>
+    </article>
+  } @else if (loading()) {
+    <p class="text-base-content/70">Cargando sesion...</p>
+  } @else if (sesionCompletada()) {
+    <article class="alert alert-success">
+      <h3>Sesion completada</h3>
+      <p>Tu cuestionario fue enviado correctamente.</p>
+    </article>
+    <div class="mt-4">
+      <a class="ui-btn-secondary" routerLink="/dashboard">Regresar al inicio</a>
+    </div>
+  } @else if (preguntaActual(); as pregunta) {
+    <article class="ui-card">
+      <div class="ui-card-body">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="badge badge-sm badge-outline">{{ pregunta.tipo === 'TextoLibre' ? 'Texto libre' : pregunta.tipo === 'SeleccionUnica' ? 'Selección única' : 'Selección múltiple' }}</span>
+        <span class="text-xs text-base-content/50">Pregunta {{ pregunta.numero }}</span>
+      </div>
+      <h3 class="text-lg font-semibold text-base-content">{{ pregunta.texto }}</h3>
+
+      <form [formGroup]="respuestaForm" (ngSubmit)="enviarRespuesta()" novalidate>
+        @switch (pregunta.tipo) {
+          @case ('TextoLibre') {
+            <label class="form-control w-full">
+              <span class="label"><span class="ui-label">Tu respuesta</span></span>
+              <textarea class="ui-textarea" rows="5" formControlName="texto" placeholder="Escribe tu respuesta"></textarea>
+            </label>
+          }
+          @case ('SeleccionUnica') {
+            <fieldset class="mt-3 space-y-2">
+              <legend class="ui-label mb-2">Selecciona una opción:</legend>
+              @for (op of pregunta.opciones; track op.id) {
+                <label class="flex items-center gap-3 cursor-pointer rounded-box border px-4 py-3 transition-colors"
+                  [class.border-primary]="opcionSeleccionada() === op.id"
+                  [class.bg-primary]="opcionSeleccionada() === op.id"
+                  [class.bg-opacity-10]="opcionSeleccionada() === op.id"
+                  [class.border-base-300]="opcionSeleccionada() !== op.id">
+                  <input type="radio" class="radio radio-primary" name="opcion"
+                    [value]="op.id"
+                    [checked]="opcionSeleccionada() === op.id"
+                    (change)="opcionSeleccionada.set(op.id)" />
+                  <span class="text-base-content">{{ op.texto }}</span>
+                </label>
+              }
+            </fieldset>
+          }
+          @case ('SeleccionMultiple') {
+            <fieldset class="mt-3 space-y-2">
+              <legend class="ui-label mb-2">Selecciona una o más opciones:</legend>
+              @for (op of pregunta.opciones; track op.id) {
+                <label class="flex items-center gap-3 cursor-pointer rounded-box border px-4 py-3 transition-colors"
+                  [class.border-primary]="isOpcionSeleccionada(op.id)"
+                  [class.bg-primary]="isOpcionSeleccionada(op.id)"
+                  [class.bg-opacity-10]="isOpcionSeleccionada(op.id)"
+                  [class.border-base-300]="!isOpcionSeleccionada(op.id)">
+                  <input type="checkbox" class="checkbox checkbox-primary"
+                    [checked]="isOpcionSeleccionada(op.id)"
+                    (change)="toggleOpcion(op.id)" />
+                  <span class="text-base-content">{{ op.texto }}</span>
+                </label>
+              }
+            </fieldset>
+          }
+        }
+
+        <div class="flex gap-3 mt-3">
+          <button class="ui-btn-primary" type="submit" [disabled]="!canSubmitRespuesta()">
+            @if (submitting()) {
+              Enviando...
+            } @else {
+              Enviar y continuar
+            }
+          </button>
+          <button class="btn btn-outline" type="button" (click)="omitirPregunta()" [disabled]="submitting()">
+            Omitir
+          </button>
+        </div>
+      </form>
+
+        @if (pregunta.permiteAdjunto) {
+          <aside class="rounded-box border border-base-300 p-3 mt-3 bg-base-100">
+            <p class="text-sm font-medium mb-2">Adjunto opcional</p>
+            <input class="file-input file-input-bordered w-full" type="file" (change)="onArchivoSeleccionado($event)" />
+            @if (adjunto()) {
+              <button type="button" class="btn btn-outline btn-primary mt-2" (click)="subirAdjunto()" [disabled]="uploadingAdjunto()">
+                @if (uploadingAdjunto()) { Subiendo... } @else { Subir archivo }
+              </button>
+            }
+            @if (adjuntoUrl()) {
+              <p class="text-success text-sm mt-2">Archivo adjuntado correctamente.</p>
+            }
+          </aside>
+        }
+      </div>
+    </article>
+  } @else {
+    <article class="alert alert-warning">
+      <p>No hay pregunta activa. La sesion puede haber sido completada o aun no iniciada.</p>
+    </article>
+    <div class="mt-4">
+      <a class="ui-btn-secondary" routerLink="/dashboard">Regresar al inicio</a>
+    </div>
+  }
+</section>

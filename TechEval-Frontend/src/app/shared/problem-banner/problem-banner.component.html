@@ -1,0 +1,15 @@
+@if (errorState.lastProblem(); as problem) {
+  <section class="problem-banner" role="alert">
+    <div>
+      <strong>{{ problem.titulo || 'Error' }}</strong>
+      <p>{{ problem.detalles || 'Ocurrio un problema al procesar la solicitud.' }}</p>
+      @if (problem.folio) {
+        <small>Folio: {{ problem.folio }}</small>
+      }
+    </div>
+
+    <button type="button" (click)="dismiss()" aria-label="Cerrar mensaje de error">
+      Cerrar
+    </button>
+  </section>
+}

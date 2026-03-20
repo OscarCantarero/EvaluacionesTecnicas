@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TechEval.API/TechEval.API.csproj" />
+    <Project Path="src/TechEval.Application/TechEval.Application.csproj" />
+    <Project Path="src/TechEval.Domain/TechEval.Domain.csproj" />
+    <Project Path="src/TechEval.Infrastructure/TechEval.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TechEval.Application.Tests/TechEval.Application.Tests.csproj" />
+    <Project Path="tests/TechEval.Architecture.Tests/TechEval.Architecture.Tests.csproj" />
+    <Project Path="tests/TechEval.Domain.Tests/TechEval.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.login-wrap {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.login-card {
+  width: min(92vw, 450px);
+  border-radius: 1rem;
+  color: var(--text-muted);
+}
+
+form {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.85rem;
+}

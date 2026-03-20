@@ -1,0 +1,34 @@
+<section class="candidate-access">
+  <div class="mb-4">
+    <a class="ui-btn-secondary" routerLink="/dashboard">← Regresar al inicio</a>
+  </div>
+  <article class="ui-card card-shell">
+    <div class="ui-card-body">
+    <p class="ui-kicker">Acceso Candidato</p>
+    <h2 class="ui-section-title">Iniciar cuestionario con codigo</h2>
+    <p class="ui-lead">Ingresa el ID de sesion y el codigo de acceso entregado por el evaluador.</p>
+
+    <app-problem-banner />
+
+    <form [formGroup]="form" (ngSubmit)="iniciar()" novalidate>
+      <label class="form-control w-full">
+        <span class="label"><span class="ui-label">Sesion ID</span></span>
+        <input class="ui-input" formControlName="sesionId" placeholder="GUID de sesion" />
+      </label>
+
+      <label class="form-control w-full">
+        <span class="label"><span class="ui-label">Codigo de acceso</span></span>
+        <input class="ui-input" formControlName="codigoAcceso" placeholder="ABC12345" />
+      </label>
+
+      <button class="ui-btn-primary" type="submit" [disabled]="!canSubmit()">
+        @if (isSubmitting()) {
+          Validando...
+        } @else {
+          Iniciar cuestionario
+        }
+      </button>
+    </form>
+    </div>
+  </article>
+</section>

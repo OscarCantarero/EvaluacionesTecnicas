@@ -1,0 +1,100 @@
+<section class="ui-card mb-6">
+  <div class="ui-card-body md:flex md:items-start md:justify-between md:gap-4">
+    <div>
+      <p class="ui-kicker">Gestión de evaluaciones</p>
+      <h2 class="ui-section-title">Formularios de evaluación</h2>
+      <p class="ui-lead mt-1">Crea y administra los formularios con preguntas y opciones de respuesta.</p>
+    </div>
+    <button type="button" class="ui-btn-primary mt-3 md:mt-0 gap-1" (click)="nuevo()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1z"/></svg>
+      Nuevo formulario
+    </button>
+  </div>
+</section>
+
+<app-problem-banner />
+
+<section class="ui-card mb-6">
+  <div class="ui-card-body">
+    <h3 class="text-sm font-semibold mb-3 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-60" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 0 1 1-1h12a1 1 0 0 1 .707 1.707L12 9.414V15a1 1 0 0 1-.553.894l-4 2A1 1 0 0 1 6 17V9.414L1.293 3.707A1 1 0 0 1 3 3z" clip-rule="evenodd"/></svg>
+      Filtros
+    </h3>
+    <div class="flex flex-wrap gap-4 items-end">
+      <label class="form-control w-full max-w-xs">
+        <span class="label"><span class="ui-label">Buscar</span></span>
+        <input class="ui-input" type="text" [(ngModel)]="busqueda" placeholder="Nombre o descripción..." (keyup.enter)="buscar()" />
+      </label>
+      <label class="form-control w-full max-w-xs">
+        <span class="label"><span class="ui-label">Estado</span></span>
+        <select class="ui-select" [(ngModel)]="estadoFiltro" (ngModelChange)="buscar()">
+          <option value="">Todos</option>
+          <option value="Borrador">Borrador</option>
+          <option value="Activa">Activa</option>
+          <option value="Cerrada">Cerrada</option>
+          <option value="Archivada">Archivada</option>
+        </select>
+      </label>
+      <button type="button" class="ui-btn-ghost gap-1" (click)="buscar()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM2 8a6 6 0 1 1 10.89 3.476l4.817 4.817a1 1 0 0 1-1.414 1.414l-4.816-4.816A6 6 0 0 1 2 8z" clip-rule="evenodd"/></svg>
+        Buscar
+      </button>
+    </div>
+  </div>
+</section>
+
+@if (loading()) {
+  <div class="flex items-center gap-2 text-base-content/70 py-8 justify-center">
+    <span class="loading loading-spinner loading-sm"></span>
+    Cargando formularios...
+  </div>
+} @else if (evaluaciones().length === 0) {
+  <section class="ui-card">
+    <div class="ui-card-body text-center py-12">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-3 opacity-30" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 0 1 2-2h4.586A2 2 0 0 1 12 2.586L15.414 6A2 2 0 0 1 16 7.414V16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z" clip-rule="evenodd"/></svg>
+      <p class="text-base-content/70 mb-3">No se encontraron formularios.</p>
+      <button type="button" class="ui-btn-primary gap-1" (click)="nuevo()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1z"/></svg>
+        Crear el primero
+      </button>
+    </div>
+  </section>
+} @else {
+  <ul class="grid">
+    @for (item of evaluaciones(); track item.id) {
+      <li>
+        <button type="button" class="card bg-base-100 border border-base-300 hover:border-primary hover:shadow-md transition-all text-left w-full" (click)="abrir(item.id)">
+          <div class="card-body p-5 gap-2">
+            <div class="flex items-center justify-between">
+              <strong class="card-nombre text-base">{{ item.nombre }}</strong>
+              <span class="badge badge-sm" [class.badge-warning]="item.estado === 'Borrador'" [class.badge-success]="item.estado === 'Activa'" [class.badge-ghost]="item.estado === 'Cerrada' || item.estado === 'Archivada'">{{ item.estado | label }}</span>
+            </div>
+            <p class="text-sm text-base-content/60">{{ item.totalPreguntas }} preguntas</p>
+            <small class="text-xs text-base-content/40">Creado el {{ item.creadoEn | date: 'dd/MM/yyyy' }}</small>
+          </div>
+        </button>
+      </li>
+    }
+  </ul>
+
+  @if (totalPaginas() > 1) {
+    <div class="flex items-center justify-center gap-3 mt-6">
+      <button type="button" class="ui-btn-ghost gap-1" [disabled]="pagina() <= 1" (click)="irPagina(pagina() - 1)">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 0 1 0 1.414L9.414 10l3.293 3.293a1 1 0 0 1-1.414 1.414l-4-4a1 1 0 0 1 0-1.414l4-4a1 1 0 0 1 1.414 0z" clip-rule="evenodd"/></svg>
+        Anterior
+      </button>
+      <span class="text-sm text-base-content/60">Página {{ pagina() }} de {{ totalPaginas() }} · {{ totalItems() }} formularios</span>
+      <button type="button" class="ui-btn-ghost gap-1" [disabled]="pagina() >= totalPaginas()" (click)="irPagina(pagina() + 1)">
+        Siguiente
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 0 1 0-1.414L10.586 10 7.293 6.707a1 1 0 0 1 1.414-1.414l4 4a1 1 0 0 1 0 1.414l-4 4a1 1 0 0 1-1.414 0z" clip-rule="evenodd"/></svg>
+      </button>
+    </div>
+  }
+
+  <div class="mt-4">
+    <button type="button" class="ui-btn-ghost gap-1" (click)="cargar()" [disabled]="loading()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 0 1 1 1v2.101a7.002 7.002 0 0 1 11.601 2.566 1 1 0 1 1-1.885.666A5.002 5.002 0 0 0 5.999 7H9a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" clip-rule="evenodd"/></svg>
+      Refrescar
+    </button>
+  </div>
+}

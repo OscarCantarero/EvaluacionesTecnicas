@@ -1,0 +1,49 @@
+<section class="ui-card">
+  <div class="ui-card-body">
+    <p class="ui-kicker">Administracion</p>
+    <h2 class="ui-section-title">Alta de usuarios</h2>
+    <p class="ui-lead">Crea usuarios para Evaluador, Candidato o Administrador usando la API de autenticacion.</p>
+
+    <app-problem-banner />
+
+    <form [formGroup]="form" (ngSubmit)="crearUsuario()" novalidate>
+      <label class="form-control w-full">
+        <span class="label"><span class="ui-label">Email</span></span>
+        <input class="ui-input" type="email" formControlName="email" placeholder="usuario@techeval.com" />
+      </label>
+
+      <label class="form-control w-full">
+        <span class="label"><span class="ui-label">Nombre</span></span>
+        <input class="ui-input" formControlName="nombre" placeholder="Nombre completo" />
+      </label>
+
+      <label class="form-control w-full">
+        <span class="label"><span class="ui-label">Password</span></span>
+        <input class="ui-input" type="password" formControlName="password" placeholder="Minimo 8, 1 mayuscula y 1 numero" />
+      </label>
+
+      <label class="form-control w-full">
+        <span class="label"><span class="ui-label">Rol</span></span>
+        <select class="ui-select" formControlName="rol">
+          @for (rol of roles; track rol) {
+            <option [value]="rol">{{ rol }}</option>
+          }
+        </select>
+      </label>
+
+      <button class="ui-btn-primary" type="submit" [disabled]="!canSubmit()">
+        @if (isSubmitting()) {
+          Creando usuario...
+        } @else {
+          Crear usuario
+        }
+      </button>
+    </form>
+
+    @if (createdUserId()) {
+      <div class="alert alert-success mt-3">
+        Usuario creado correctamente. ID: {{ createdUserId() }}
+      </div>
+    }
+  </div>
+</section>

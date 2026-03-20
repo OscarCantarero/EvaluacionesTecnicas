@@ -1,0 +1,56 @@
+<header class="navbar bg-base-100 border-b border-base-300 px-4 md:px-8">
+  <button type="button" class="btn btn-ghost lg:hidden" (click)="toggleMenu()" aria-label="Alternar menú">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" clip-rule="evenodd"/></svg>
+  </button>
+
+  <div class="navbar-start gap-3 lg:gap-4">
+    <div>
+      <p class="ui-kicker">TechEval</p>
+      <h1 class="text-lg md:text-2xl font-semibold">Control de Evaluaciones</h1>
+    </div>
+  </div>
+
+  <div class="navbar-end gap-2 md:gap-3 flex-wrap">
+    <a class="badge badge-outline gap-1" routerLink="/resultados">
+      <span [innerHTML]="icons.clipboard | safeHtml"></span> Operación activa
+    </a>
+    <button type="button" class="ui-btn-ghost gap-1" (click)="toggleTheme()" aria-label="Cambiar tema">
+      @if (isDarkTheme()) {
+        <span [innerHTML]="icons.sun | safeHtml"></span> Claro
+      } @else {
+        <span [innerHTML]="icons.moon | safeHtml"></span> Oscuro
+      }
+    </button>
+    <div class="rounded-box border border-base-300 bg-base-100 px-3 py-2 leading-tight">
+      <span>{{ userName() || 'Usuario' }}</span>
+      <small class="block text-xs text-base-content/70">{{ userRole() || 'Sin rol' }}</small>
+    </div>
+    <button type="button" class="btn btn-outline btn-error gap-1" (click)="logout()" [disabled]="isLoggingOut()">
+      <span [innerHTML]="icons.logout | safeHtml"></span>
+      @if (isLoggingOut()) { Saliendo... } @else { Salir }
+    </button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar bg-base-100 border-r border-base-300" [class.is-open]="menuOpen()">
+    <nav class="menu rounded-box w-full gap-1">
+      @for (item of navItems(); track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="is-active"
+          class="nav-link"
+          (click)="closeMenu()"
+        >
+          <span class="nav-icon" [innerHTML]="item.icon | safeHtml"></span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="content bg-base-200">
+    <app-problem-banner />
+    <router-outlet></router-outlet>
+  </main>
+</div>

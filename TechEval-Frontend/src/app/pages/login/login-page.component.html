@@ -1,0 +1,31 @@
+<section class="login-wrap bg-base-200">
+  <article class="ui-card login-card">
+    <div class="ui-card-body">
+      <p class="ui-kicker">TechEval Frontend</p>
+      <h2 class="ui-section-title">Ingresar al sistema</h2>
+      <p class="ui-lead">Usa tus credenciales para acceder al panel de evaluacion.</p>
+
+      <app-problem-banner />
+
+      <form [formGroup]="form" (ngSubmit)="login()" novalidate>
+        <label class="form-control w-full">
+          <span class="label"><span class="ui-label">Email</span></span>
+          <input class="ui-input" type="email" formControlName="email" placeholder="evaluador@techeval.com" />
+        </label>
+
+        <label class="form-control w-full">
+          <span class="label"><span class="ui-label">Contrasena</span></span>
+          <input class="ui-input" type="password" formControlName="password" placeholder="********" />
+        </label>
+
+        <button class="ui-btn-primary w-full" type="submit" [disabled]="form.invalid || isSubmitting()">
+          @if (isSubmitting()) {
+            Ingresando...
+          } @else {
+            Ingresar
+          }
+        </button>
+      </form>
+    </div>
+  </article>
+</section>

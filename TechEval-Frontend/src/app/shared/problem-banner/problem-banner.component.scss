@@ -1,0 +1,35 @@
+.problem-banner {
+  border: 1px solid color-mix(in srgb, var(--brand-red) 58%, var(--border-subtle));
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  strong {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  small {
+    display: inline-block;
+    margin-top: 0.35rem;
+  }
+
+  button {
+    border: 1px solid color-mix(in srgb, var(--brand-red) 45%, var(--border-subtle));
+    background: var(--surface-card-strong);
+    color: var(--danger-text);
+    border-radius: 8px;
+    padding: 0.35rem 0.65rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}

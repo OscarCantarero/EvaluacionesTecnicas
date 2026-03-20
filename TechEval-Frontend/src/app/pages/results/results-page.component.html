@@ -1,0 +1,222 @@
+<section class="ui-card">
+  <div class="ui-card-body">
+  <header>
+    <p class="ui-kicker">Resultados</p>
+    <h2 class="ui-section-title flex items-center gap-2">
+      <span [innerHTML]="icons.star | safeHtml"></span> Resultados y revisión
+    </h2>
+  </header>
+
+  <app-problem-banner />
+
+  <section class="layout">
+    <article class="list bg-base-100 border border-base-300 rounded-box">
+      <div class="list-head">
+        <h3 class="flex items-center gap-2"><span [innerHTML]="icons.clipboard | safeHtml"></span> Sesiones</h3>
+        <button type="button" class="ui-btn-ghost" (click)="cargarSesiones()" [disabled]="loadingSesiones()">
+          <span [innerHTML]="icons.refresh | safeHtml" class="inline mr-1"></span> Refrescar
+        </button>
+      </div>
+
+      @if (loadingSesiones()) {
+        <div class="flex items-center gap-2 py-3">
+          <span class="loading loading-spinner loading-sm"></span>
+          <span class="text-base-content/70">Cargando sesiones…</span>
+        </div>
+      } @else if (sesiones().length === 0) {
+        <p class="text-base-content/70">No hay sesiones para mostrar.</p>
+      } @else {
+        <ul>
+          @for (sesion of sesiones(); track sesion.sesionId) {
+            <li>
+              <button
+                type="button"
+                class="session-item bg-base-100 border border-base-300"
+                [class.active]="sesionActiva() === sesion.sesionId"
+                (click)="abrirResultado(sesion.sesionId)">
+                <strong>{{ sesion.evaluacionTitulo }}</strong>
+                <small class="text-base-content/70">
+                  <span class="badge badge-xs badge-outline mr-1">{{ sesion.estado | label }}</span>
+                  · {{ sesion.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}
+                </small>
+              </button>
+            </li>
+          }
+        </ul>
+
+        @if (totalPaginas() > 1) {
+          <div class="flex items-center justify-center gap-3 mt-3">
+            <button type="button" class="ui-btn-ghost" [disabled]="pagina() <= 1" (click)="irPagina(pagina() - 1)">Anterior</button>
+            <span class="text-sm text-base-content/60">{{ pagina() }} / {{ totalPaginas() }} · {{ totalItems() }} sesiones</span>
+            <button type="button" class="ui-btn-ghost" [disabled]="pagina() >= totalPaginas()" (click)="irPagina(pagina() + 1)">Siguiente</button>
+          </div>
+        }
+      }
+    </article>
+
+    <article class="detail bg-base-100 border border-base-300 rounded-box">
+      @if (loadingResultado()) {
+        <div class="flex items-center gap-2 py-4">
+          <span class="loading loading-spinner loading-sm"></span>
+          <span class="text-base-content/70">Cargando resultado…</span>
+        </div>
+      } @else if (resultado(); as res) {
+        <header class="summary">
+          <h3>{{ res.tituloEvaluacion }}</h3>
+          <p class="text-base-content/70">{{ res.nombreCandidato }}</p>
+          <p><strong>{{ res.puntuacionTotal }}</strong> / {{ res.puntuacionMaxima }} ({{ res.porcentajeObtenido }}%)</p>
+          <p>
+            Estado: <span class="badge badge-sm badge-outline">{{ res.estadoGeneral | label }}</span>
+            · Revisión: <span class="badge badge-sm badge-outline">{{ res.estadoRevision | label }}</span>
+          </p>
+        </header>
+
+        <ul class="scores">
+          @for (p of res.puntuaciones; track p.numeroPregunta) {
+            <li>
+              <p>
+                <strong>Pregunta {{ p.numeroPregunta }}</strong>
+                · <span class="badge badge-xs badge-outline">{{ p.tipoPregunta | label }}</span>
+              </p>
+              <small class="text-base-content/70">
+                Auto: {{ p.puntuacionAutomatica ?? '-' }} · Manual: {{ p.puntuacionManual ?? '-' }} · IA: {{ p.puntuacionIASugerida ?? '-' }}
+              </small>
+            </li>
+          }
+        </ul>
+
+        <section class="actions-grid">
+          <form [formGroup]="puntajeForm" (ngSubmit)="asignarPuntajeManual()" class="action-card border border-base-300 rounded-box bg-base-100" novalidate>
+            <h4 class="flex items-center gap-2"><span [innerHTML]="icons.save | safeHtml"></span> Asignar puntaje manual</h4>
+            <label class="form-control w-full">
+              <span class="label"><span class="ui-label">Pregunta</span></span>
+              <select class="ui-select" formControlName="preguntaId">
+                @for (p of res.puntuaciones; track p.numeroPregunta) {
+                  <option [value]="p.preguntaId">Pregunta {{ p.numeroPregunta }}</option>
+                }
+              </select>
+            </label>
+            <label class="form-control w-full">
+              <span class="label"><span class="ui-label">Puntaje</span></span>
+              <input class="ui-input" type="number" formControlName="puntaje" />
+            </label>
+            <label class="form-control w-full">
+              <span class="label"><span class="ui-label">Observaciones</span></span>
+              <textarea class="ui-textarea" rows="2" formControlName="observaciones"></textarea>
+            </label>
+            <button class="ui-btn-primary" type="submit" [disabled]="!puntajeForm.valid || loadingAccion()">
+              <span [innerHTML]="icons.save | safeHtml" class="inline mr-1"></span> Guardar puntaje
+            </button>
+          </form>
+
+          <form [formGroup]="iaForm" (ngSubmit)="evaluarConIa()" class="action-card border border-base-300 rounded-box bg-base-100" novalidate>
+            <h4 class="flex items-center gap-2"><span [innerHTML]="icons.star | safeHtml"></span> Evaluar con IA</h4>
+            <label class="form-control w-full">
+              <span class="label"><span class="ui-label">Pregunta</span></span>
+              <select class="ui-select" formControlName="preguntaId">
+                @for (p of res.puntuaciones; track p.numeroPregunta) {
+                  <option [value]="p.preguntaId">Pregunta {{ p.numeroPregunta }}</option>
+                }
+              </select>
+            </label>
+            <label class="form-control w-full">
+              <span class="label"><span class="ui-label">Contexto del evaluador IA</span></span>
+              <textarea class="ui-textarea" rows="2" formControlName="contextoEvaluador" placeholder="Ej: Eres un evaluador senior de backend .NET…"></textarea>
+            </label>
+            <label class="form-control w-full">
+              <span class="label"><span class="ui-label">Escala de puntuación</span></span>
+              <input class="ui-input" type="number" formControlName="escalaPuntuacion" min="1" max="100" />
+              <span class="label"><span class="text-xs text-base-content/50">La IA calificará sobre esta escala (ej: 10 = puntaje de 0 a 10)</span></span>
+            </label>
+            <label class="form-control w-full">
+              <span class="label"><span class="ui-label">Rúbrica (opcional)</span></span>
+              <textarea class="ui-textarea" rows="2" formControlName="rubrica" placeholder="Criterios específicos para evaluar…"></textarea>
+            </label>
+            <button class="ui-btn-secondary" type="submit" [disabled]="!iaForm.valid || loadingAccion()">
+              <span [innerHTML]="icons.star | safeHtml" class="inline mr-1"></span> Solicitar evaluación IA
+            </button>
+          </form>
+
+          @if (iaResultado(); as ia) {
+            <section class="action-card border border-accent/30 rounded-box bg-base-100">
+              <h4 class="flex items-center gap-2"><span [innerHTML]="icons.star | safeHtml"></span> Resultado de IA</h4>
+              <p class="text-lg font-bold text-primary">{{ ia.puntajeSugerido }} / {{ ia.escalaPuntuacion }}</p>
+              <p class="text-sm text-base-content/70">{{ ia.justificacion }}</p>
+
+              @if (ia.aspectosPositivos.length > 0) {
+                <div>
+                  <strong class="text-sm">Aspectos positivos:</strong>
+                  <ul class="list-disc list-inside text-sm text-base-content/70">
+                    @for (a of ia.aspectosPositivos; track a) {
+                      <li>{{ a }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              @if (ia.aspectosNegativos.length > 0) {
+                <div>
+                  <strong class="text-sm">Áreas de mejora:</strong>
+                  <ul class="list-disc list-inside text-sm text-base-content/70">
+                    @for (a of ia.aspectosNegativos; track a) {
+                      <li>{{ a }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              <div class="flex gap-2 mt-2">
+                <button type="button" class="ui-btn-primary" (click)="aceptarSugerenciaIa()" [disabled]="loadingAccion()">
+                  <span [innerHTML]="icons.check | safeHtml" class="inline mr-1"></span> Aceptar puntaje
+                </button>
+                <button type="button" class="ui-btn-ghost" (click)="iaResultado.set(null)">Descartar</button>
+              </div>
+
+              <details class="mt-2">
+                <summary class="text-sm cursor-pointer text-base-content/70">Rechazar y asignar otro puntaje</summary>
+                <form [formGroup]="rechazoForm" (ngSubmit)="rechazarSugerenciaIa()" class="mt-2 space-y-2" novalidate>
+                  <label class="form-control w-full">
+                    <span class="label"><span class="ui-label">Puntaje alternativo</span></span>
+                    <input class="ui-input" type="number" formControlName="puntajeAlternativo" />
+                  </label>
+                  <label class="form-control w-full">
+                    <span class="label"><span class="ui-label">Motivo de rechazo</span></span>
+                    <textarea class="ui-textarea" rows="2" formControlName="motivoRechazo" placeholder="Explique por qué rechaza la sugerencia…"></textarea>
+                  </label>
+                  <button class="ui-btn-secondary" type="submit" [disabled]="!rechazoForm.valid || loadingAccion()">Rechazar y asignar</button>
+                </form>
+              </details>
+            </section>
+          }
+        </section>
+
+        <section class="pdf-row">
+          <button type="button" class="ui-btn-ghost" (click)="generarPdf()" [disabled]="loadingAccion()">
+            <span [innerHTML]="icons.document | safeHtml" class="inline mr-1"></span> Generar PDF
+          </button>
+          @if (res.estadoRevision !== 'Completada') {
+            <button type="button" class="ui-btn-primary" (click)="completarRevision()" [disabled]="loadingAccion()">
+              <span [innerHTML]="icons.check | safeHtml" class="inline mr-1"></span> Completar revisión
+            </button>
+          }
+          @if (pdfUrl()) {
+            <a [href]="pdfUrl()!" target="_blank" rel="noreferrer">Abrir PDF generado</a>
+          }
+          @if (revisionMsg()) {
+            <span class="text-sm text-success">{{ revisionMsg() }}</span>
+          }
+        </section>
+      } @else {
+        <div class="text-center py-8 text-base-content/50">
+          <span [innerHTML]="icons.eye | safeHtml" class="opacity-30" style="transform: scale(2.5); display: inline-block; margin-bottom: 1rem;"></span>
+          <p>Selecciona una sesión para ver su resultado.</p>
+        </div>
+      }
+    </article>
+  </section>
+
+  <div class="callout">
+    Consola de revisión: asigna puntajes, solicita evaluación asistida y genera reportes PDF por sesión.
+  </div>
+  </div>
+</section>

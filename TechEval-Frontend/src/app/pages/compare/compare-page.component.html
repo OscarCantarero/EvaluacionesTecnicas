@@ -1,0 +1,221 @@
+<section class="ui-card">
+  <div class="ui-card-body">
+    <h2 class="ui-section-title flex items-center gap-2">
+      <span [innerHTML]="icons.chart | safeHtml"></span> Comparar candidatos y Ranking
+    </h2>
+    <p class="ui-lead">Selecciona una evaluación para ver el ranking de candidatos o comparar sesiones específicas.</p>
+
+    <app-problem-banner />
+
+    <!-- Selector de evaluación -->
+    <label class="form-control w-full max-w-md">
+      <span class="label"><span class="ui-label">Evaluación</span></span>
+      <select class="ui-select" [(ngModel)]="evaluacionSeleccionada" (ngModelChange)="onEvaluacionChange()">
+        <option value="">Selecciona una evaluación</option>
+        @for (ev of evaluaciones(); track ev.id) {
+          <option [value]="ev.id">{{ ev.nombre }} ({{ ev.totalPreguntas }} preguntas)</option>
+        }
+      </select>
+    </label>
+
+    @if (evaluacionSeleccionada) {
+      <!-- Acciones -->
+      <div class="flex flex-wrap gap-2 mt-4">
+        <button class="ui-btn-primary" (click)="cargarRanking()" [disabled]="loading()">
+          @if (loading() && vistaActiva() === 'ranking') {
+            <span class="loading loading-spinner loading-xs"></span> Cargando…
+          } @else {
+            <span [innerHTML]="icons.trophy | safeHtml" class="inline mr-1"></span> Ver ranking
+          }
+        </button>
+        <button class="ui-btn-secondary" (click)="compararSeleccionados()"
+          [disabled]="loading() || sesionesSeleccionadas().size < 2">
+          @if (loading() && vistaActiva() === 'comparar') {
+            <span class="loading loading-spinner loading-xs"></span> Comparando…
+          } @else {
+            <span [innerHTML]="icons.users | safeHtml" class="inline mr-1"></span> Comparar seleccionados ({{ sesionesSeleccionadas().size }})
+          }
+        </button>
+      </div>
+
+      <!-- Sesiones para comparar -->
+      @if (loadingSesiones()) {
+        <div class="flex items-center gap-2 py-3">
+          <span class="loading loading-spinner loading-sm"></span>
+          <span class="text-base-content/70">Cargando sesiones…</span>
+        </div>
+      } @else if (sesiones().length > 0) {
+        <div class="mt-4">
+          <span class="ui-label text-sm">Sesiones disponibles para comparación</span>
+          <div class="flex gap-2 mt-1 mb-2">
+            <button type="button" class="ui-btn-ghost text-xs" (click)="seleccionarTodas()">
+              <span [innerHTML]="icons.check | safeHtml" class="inline mr-1"></span> Seleccionar todas
+            </button>
+            <button type="button" class="ui-btn-ghost text-xs" (click)="deseleccionarTodas()">Deseleccionar todas</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-48 overflow-y-auto border border-base-300 rounded-box p-2">
+            @for (s of sesiones(); track s.sesionId) {
+              <label class="flex items-center gap-2 cursor-pointer hover:bg-base-200 px-2 py-1 rounded">
+                <input type="checkbox" class="checkbox checkbox-sm checkbox-primary"
+                  [checked]="sesionesSeleccionadas().has(s.sesionId)"
+                  (change)="toggleSesion(s.sesionId)" />
+                <span class="text-sm">{{ s.evaluacionTitulo }} <span class="text-base-content/50">({{ s.estado | label }})</span></span>
+              </label>
+            }
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Ranking -->
+    @if (ranking(); as rk) {
+      <div class="mt-6">
+        <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
+          <span [innerHTML]="icons.trophy | safeHtml"></span> Ranking: {{ rk.tituloEvaluacion }}
+        </h3>
+        <p class="text-sm text-base-content/70 mb-3">{{ rk.totalCandidatos }} candidatos evaluados</p>
+
+        <div class="overflow-x-auto">
+          <table class="table table-zebra w-full">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Candidato</th>
+                <th>Puntuación</th>
+                <th>Porcentaje</th>
+                <th>Estado</th>
+                <th>Violaciones</th>
+                <th>Tiempo</th>
+                <th>Revisión</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of rk.ranking; track c.sesionId) {
+                <tr>
+                  <td>
+                    @if (c.posicion === 1) {
+                      <span class="badge badge-warning font-bold">🥇 1</span>
+                    } @else if (c.posicion === 2) {
+                      <span class="badge badge-ghost font-bold">🥈 2</span>
+                    } @else if (c.posicion === 3) {
+                      <span class="badge badge-ghost">🥉 3</span>
+                    } @else {
+                      {{ c.posicion }}
+                    }
+                  </td>
+                  <td class="font-medium">{{ c.nombreCandidato }}</td>
+                  <td>{{ c.puntuacionTotal | number:'1.1-1' }}</td>
+                  <td>
+                    <span class="font-semibold"
+                      [class.text-success]="c.porcentajeObtenido >= 70"
+                      [class.text-warning]="c.porcentajeObtenido >= 50 && c.porcentajeObtenido < 70"
+                      [class.text-error]="c.porcentajeObtenido < 50">
+                      {{ c.porcentajeObtenido | number:'1.1-1' }}%
+                    </span>
+                  </td>
+                  <td><span class="badge badge-sm badge-outline">{{ c.estadoGeneral | label }}</span></td>
+                  <td>
+                    @if (c.violacionesPestana > 0) {
+                      <span class="text-error font-bold">{{ c.violacionesPestana }}</span>
+                    } @else {
+                      <span class="text-success">0</span>
+                    }
+                  </td>
+                  <td class="text-sm">{{ formatTiempo(c.tiempoTotalSegundos) }}</td>
+                  <td><span class="badge badge-sm badge-outline">{{ c.estadoRevision | label }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- Comparación -->
+    @if (comparacion(); as comp) {
+      <div class="mt-6">
+        <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
+          <span [innerHTML]="icons.users | safeHtml"></span> Comparativa: {{ comp.tituloEvaluacion }}
+        </h3>
+
+        <!-- Resumen general -->
+        <div class="overflow-x-auto mb-4">
+          <table class="table table-zebra w-full">
+            <thead>
+              <tr>
+                <th>Candidato</th>
+                <th>Puntuación</th>
+                <th>Porcentaje</th>
+                <th>Estado</th>
+                <th>Violaciones</th>
+                <th>Tiempo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of comp.candidatos; track c.sesionId) {
+                <tr>
+                  <td class="font-medium">{{ c.nombreCandidato }}</td>
+                  <td>{{ c.puntuacionTotal | number:'1.1-1' }}</td>
+                  <td>
+                    <span class="font-semibold"
+                      [class.text-success]="c.porcentajeObtenido >= 70"
+                      [class.text-warning]="c.porcentajeObtenido >= 50 && c.porcentajeObtenido < 70"
+                      [class.text-error]="c.porcentajeObtenido < 50">
+                      {{ c.porcentajeObtenido | number:'1.1-1' }}%
+                    </span>
+                  </td>
+                  <td><span class="badge badge-sm badge-outline">{{ c.estadoGeneral | label }}</span></td>
+                  <td>{{ c.violacionesPestana }}</td>
+                  <td class="text-sm">{{ formatTiempo(c.tiempoTotalSegundos) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Detalle por pregunta -->
+        <h4 class="font-semibold mb-3 flex items-center gap-2">
+          <span [innerHTML]="icons.clipboard | safeHtml"></span> Detalle por pregunta
+        </h4>
+        @for (p of comp.preguntas; track p.numeroPregunta) {
+          <div class="collapse collapse-arrow bg-base-200 mb-2">
+            <input type="checkbox" />
+            <div class="collapse-title font-medium">
+              Pregunta {{ p.numeroPregunta }} <span class="badge badge-sm badge-outline ml-2">{{ p.tipoPregunta | label }}</span>
+            </div>
+            <div class="collapse-content">
+              <div class="overflow-x-auto">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Candidato</th>
+                      <th>Respuesta</th>
+                      <th>Puntaje</th>
+                      <th>Expirada</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (r of p.respuestas; track r.sesionId) {
+                      <tr>
+                        <td>{{ r.nombreCandidato }}</td>
+                        <td class="max-w-xs truncate" [title]="r.respuesta">{{ r.respuesta }}</td>
+                        <td class="font-semibold">{{ r.puntuacionFinal | number:'1.1-1' }}</td>
+                        <td>
+                          @if (r.fueExpirada) {
+                            <span class="text-error text-xs">Sí</span>
+                          } @else {
+                            <span class="text-success text-xs">No</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

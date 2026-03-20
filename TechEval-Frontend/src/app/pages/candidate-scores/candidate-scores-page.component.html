@@ -1,0 +1,126 @@
+<section class="candidate-scores">
+  <header class="ui-card">
+    <div class="ui-card-body">
+      <p class="ui-kicker">Portal del Candidato</p>
+      <h2 class="ui-section-title flex items-center gap-2">
+        <span [innerHTML]="icons.star | safeHtml"></span> Mis sesiones y puntajes
+      </h2>
+    </div>
+  </header>
+
+  <app-problem-banner />
+
+  @if (loadingSessions()) {
+    <div class="flex items-center gap-2 py-4">
+      <span class="loading loading-spinner loading-sm"></span>
+      <span class="text-base-content/70">Cargando tus sesiones…</span>
+    </div>
+  } @else if (!hasSessions()) {
+    <div class="text-center py-8 text-base-content/50">
+      <span [innerHTML]="icons.clipboard | safeHtml" class="opacity-30" style="transform: scale(2.5); display: inline-block; margin-bottom: 1rem;"></span>
+      <p>No tienes sesiones registradas.</p>
+    </div>
+  } @else {
+    <div class="grid">
+      <article class="session-list bg-base-100 border border-base-300 rounded-box">
+        <h3 class="flex items-center gap-2"><span [innerHTML]="icons.clipboard | safeHtml"></span> Sesiones</h3>
+
+        @for (sesion of sesiones(); track sesion.sesionId) {
+          <button type="button" class="session-item bg-base-100 border border-base-300" (click)="verResultado(sesion.sesionId)">
+            <strong>{{ sesion.evaluacionTitulo }}</strong>
+            <small class="text-base-content/70">
+              <span class="badge badge-xs badge-outline mr-1">{{ sesion.estado | label }}</span>
+              · {{ sesion.fechaCreacion | date: 'short' }}
+            </small>
+            <span class="text-primary text-xs font-medium">
+              @if (sesion.puntuacionObtenida !== null) {
+                {{ sesion.puntuacionObtenida }} pts
+              } @else {
+                Sin puntaje final
+              }
+            </span>
+          </button>
+        }
+
+        @if (totalPaginas() > 1) {
+          <div class="flex items-center justify-center gap-3 mt-3 px-4 pb-3">
+            <button type="button" class="ui-btn-ghost" [disabled]="pagina() <= 1" (click)="irPagina(pagina() - 1)">Anterior</button>
+            <span class="text-sm text-base-content/60">{{ pagina() }} / {{ totalPaginas() }} · {{ totalItems() }} sesiones</span>
+            <button type="button" class="ui-btn-ghost" [disabled]="pagina() >= totalPaginas()" (click)="irPagina(pagina() + 1)">Siguiente</button>
+          </div>
+        }
+      </article>
+
+      <article class="result-view bg-base-100 border border-base-300 rounded-box">
+        <h3 class="flex items-center gap-2"><span [innerHTML]="icons.eye | safeHtml"></span> Detalle de resultado</h3>
+        @if (loadingResult()) {
+          <div class="flex items-center gap-2 py-3">
+            <span class="loading loading-spinner loading-sm"></span>
+            <span class="text-base-content/70">Cargando resultado…</span>
+          </div>
+        } @else if (selectedResult(); as result) {
+          <div class="space-y-4">
+            <div>
+              <span class="text-xs uppercase tracking-wider text-base-content/50">Evaluación</span>
+              <p class="font-semibold text-base-content text-lg">{{ result.tituloEvaluacion }}</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-base-200 rounded-box p-3 text-center">
+                <span class="text-xs uppercase tracking-wider text-base-content/50">Puntaje</span>
+                <p class="text-2xl font-bold text-primary">{{ result.puntuacionTotal }} <span class="text-sm font-normal text-base-content/60">/ {{ result.puntuacionMaxima }}</span></p>
+              </div>
+              <div class="bg-base-200 rounded-box p-3 text-center">
+                <span class="text-xs uppercase tracking-wider text-base-content/50">Porcentaje</span>
+                <p class="text-2xl font-bold" [class.text-success]="result.porcentajeObtenido >= 70" [class.text-warning]="result.porcentajeObtenido >= 40 && result.porcentajeObtenido < 70" [class.text-error]="result.porcentajeObtenido < 40">{{ result.porcentajeObtenido }}%</p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <span class="badge" [class.badge-success]="result.estadoGeneral === 'Excelente' || result.estadoGeneral === 'Muy Bueno'" [class.badge-warning]="result.estadoGeneral === 'Bueno' || result.estadoGeneral === 'Aceptable'" [class.badge-error]="result.estadoGeneral === 'Insuficiente'">{{ result.estadoGeneral }}</span>
+              <span class="badge badge-outline">{{ result.estadoRevision | label }}</span>
+              @if (result.violacionesPestana > 0) {
+                <span class="badge badge-error badge-outline">{{ result.violacionesPestana }} violaciones de pestaña</span>
+              }
+            </div>
+
+            @if (result.tiempoTotalSegundos > 0) {
+              <p class="text-sm text-base-content/60">Tiempo total: {{ Math.floor(result.tiempoTotalSegundos / 60) }}m {{ result.tiempoTotalSegundos % 60 }}s</p>
+            }
+
+            @if (result.puntuaciones.length > 0) {
+              <div class="border-t border-base-300 pt-3 mt-3">
+                <h4 class="text-sm font-semibold text-base-content mb-2">Desglose por pregunta</h4>
+                <div class="space-y-2">
+                  @for (p of result.puntuaciones; track p.preguntaId) {
+                    <div class="flex items-center justify-between bg-base-200/50 rounded px-3 py-2 text-sm">
+                      <span class="text-base-content">
+                        <strong>P{{ p.numeroPregunta }}</strong>
+                        <span class="badge badge-xs badge-outline ml-1">{{ p.tipoPregunta | label }}</span>
+                        @if (p.fueExpirada) { <span class="badge badge-xs badge-error ml-1">Expirada</span> }
+                      </span>
+                      <span class="font-mono font-semibold text-base-content">
+                        @if (p.puntuacionManual !== null) {
+                          {{ p.puntuacionManual }} pts
+                        } @else if (p.puntuacionAutomatica !== null) {
+                          {{ p.puntuacionAutomatica }} pts
+                        } @else {
+                          <span class="text-base-content/40">Pendiente</span>
+                        }
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-6 text-base-content/50">
+            <span [innerHTML]="icons.eye | safeHtml" class="opacity-30" style="transform: scale(2); display: inline-block; margin-bottom: 0.5rem;"></span>
+            <p>Selecciona una sesión para ver su resultado.</p>
+          </div>
+        }
+      </article>
+    </div>
+  }
+</section>

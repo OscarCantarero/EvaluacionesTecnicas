@@ -1,0 +1,121 @@
+.detail-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ev-info {
+  flex: 1;
+}
+
+.refresh {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.hint-panel {
+  display: flex;
+  align-items: center;
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+}
+
+.check-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+}
+
+.gap-top {
+  margin-top: 2rem;
+}
+
+.question-list {
+  margin-top: 1rem;
+}
+
+.q-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.q-item {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  background: color-mix(in srgb, currentColor 2%, transparent);
+  border-radius: 0.75rem;
+  padding: 0.8rem;
+}
+
+.q-content {
+  flex: 1;
+}
+
+.q-texto {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+.q-meta {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  color: color-mix(in srgb, currentColor 60%, transparent);
+
+  em {
+    font-style: italic;
+    color: var(--color-primary, #1d386e);
+  }
+}
+
+.opciones {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.25rem;
+
+  li {
+    font-size: 0.84rem;
+    color: color-mix(in srgb, currentColor 70%, transparent);
+  }
+}
+
+.pts {
+  margin-left: 0.4rem;
+  background: color-mix(in srgb, var(--color-primary, #1d386e) 15%, transparent);
+  color: var(--color-primary, #1d386e);
+  border-radius: 6px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-accent);
+}

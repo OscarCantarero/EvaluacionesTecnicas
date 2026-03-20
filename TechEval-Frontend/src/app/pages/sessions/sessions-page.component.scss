@@ -1,0 +1,46 @@
+form {
+  margin-top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.session-form {
+  gap: 0.75rem;
+}
+
+.sessions-list {
+  margin-top: 1.2rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  padding-top: 1rem;
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.sessions-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.session-item {
+  padding: 0.7rem 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+
+  p {
+    margin: 0;
+  }
+
+  small {
+    color: color-mix(in srgb, currentColor 60%, transparent);
+  }
+}
