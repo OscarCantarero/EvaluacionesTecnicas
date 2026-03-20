@@ -368,11 +368,13 @@ Implementar comparacion de candidatos, ranking, paginacion, filtros y mejoras de
 - [ ] Empty states con ícono descriptivo
 
 ### Backlog Frontend — Sprint C (Tab Lock + Grabación)
-- [ ] Tab Lock: interceptar `visibilitychange` + `blur`, modal de advertencia, bloquear `beforeunload`
-- [ ] Grabación de pantalla/pestaña con `MediaRecorder` + `getDisplayMedia()`
-- [ ] Grabación de audio con `getUserMedia({ audio: true })`
-- [ ] Subir grabaciones al completar sesión
-- [ ] UI: indicadores de grabación activa durante quiz
+- [x] Tab Lock: interceptar `visibilitychange` + `blur`, modal de advertencia, bloquear `beforeunload`
+- [x] Grabación de pantalla/pestaña con `MediaRecorder` + `getDisplayMedia()`
+- [x] Grabación de audio con `getUserMedia({ audio: true })`
+- [x] Subir grabaciones al completar sesión
+- [x] UI: indicadores de grabación activa durante quiz
+
+> **Registro de avance 2026-03-20**: Sprint C completado. Tab Lock mejorado con `blur` listener, `beforeunload`, modal de violación con contador y señales reactivas. Screen recording via `getDisplayMedia` y audio via `getUserMedia`, ambos con manejo graceful de permisos denegados. Indicadores REC/AUDIO animados en header. Archivos subidos via `subirGrabacion` y `subirAudio` en `SesionesApiService`. Backend: endpoints `/grabacion` y `/audio`, dominio con `UrlGrabacionSesion`, `UrlGrabacionAudio`, `MaxViolacionesPestana`, auto-cancelación por exceso de violaciones (`EstadoSesion.Cancelada`). Migración `20260320120000_Fase4_GrabacionSesion` creada. `AgregarAdjunto` endpoint arreglado para usar `IServicioArchivos` real.
 
 ### Backlog Frontend — Sprint D (Transcripciones + Scoring)
 - [ ] UI: subir transcripción de entrevista (evaluador)

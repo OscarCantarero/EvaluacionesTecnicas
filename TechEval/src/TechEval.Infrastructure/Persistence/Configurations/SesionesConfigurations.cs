@@ -39,6 +39,15 @@ public sealed class SesionEvaluacionConfiguration : IEntityTypeConfiguration<Ses
         builder.Property(s => s.ContadorViolacionesPestana)
             .HasDefaultValue(0);
 
+        builder.Property(s => s.UrlGrabacionSesion)
+            .HasMaxLength(500);
+
+        builder.Property(s => s.UrlGrabacionAudio)
+            .HasMaxLength(500);
+
+        builder.Property(s => s.MaxViolacionesPestana)
+            .HasDefaultValue(0);
+
         // Índices
         builder.HasIndex(s => s.CodigoAcceso).IsUnique();
         builder.HasIndex(s => s.CandidatoId);

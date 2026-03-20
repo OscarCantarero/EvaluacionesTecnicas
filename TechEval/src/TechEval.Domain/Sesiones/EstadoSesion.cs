@@ -10,5 +10,6 @@ public enum EstadoSesion
     NoIniciada = 1,     // Creada pero no comenzada por el candidato
     EnProgreso = 2,     // Candidato está respondiendo preguntas
     Completada = 3,     // Candidato finalizó todas las preguntas
-    Abandonada = 4      // Candidato abandonó la sesión
+    Abandonada = 4,     // Candidato abandonó la sesión
+    Cancelada = 5       // Sesión cancelada por exceso de violaciones de pestaña
 }

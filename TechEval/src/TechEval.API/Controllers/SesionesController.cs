@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TechEval.Application.Common.Interfaces;
 using TechEval.Application.Sesiones.Commands.AgregarAdjuntoRespuesta;
 using TechEval.Application.Sesiones.Commands.CrearSesion;
 using TechEval.Application.Sesiones.Commands.CrearSesionesMasivas;
+using TechEval.Application.Sesiones.Commands.GuardarGrabacionAudio;
+using TechEval.Application.Sesiones.Commands.GuardarGrabacionSesion;
 using TechEval.Application.Sesiones.Commands.IniciarSesion;
 using TechEval.Application.Sesiones.Commands.RegistrarRespuesta;
 using TechEval.Application.Sesiones.Commands.RegistrarViolacionPestana;
@@ -23,6 +26,8 @@ namespace TechEval.API.Controllers;
 /// - POST /api/sesiones/{id}/respuestas: Candidato envía respuesta
 /// - POST /api/sesiones/{id}/violaciones-pestana: Registro de violaciones
 /// - POST /api/sesiones/{id}/adjuntos: Registrar archivo adjunto
+/// - POST /api/sesiones/{id}/grabacion: Guardar grabación de pantalla de la sesión
+/// - POST /api/sesiones/{id}/audio: Guardar grabación de audio de la sesión
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -30,10 +35,12 @@ namespace TechEval.API.Controllers;
 public sealed class SesionesController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IServicioArchivos _servicioArchivos;
 
-    public SesionesController(IMediator mediator)
+    public SesionesController(IMediator mediator, IServicioArchivos servicioArchivos)
     {
         _mediator = mediator;
+        _servicioArchivos = servicioArchivos;
     }
 
     /// <summary>
@@ -176,9 +183,12 @@ public sealed class SesionesController : ControllerBase
         if (request.Archivo == null || request.Archivo.Length == 0)
             return BadRequest("El archivo no puede estar vacío");
 
-        // Aquí iría la lógica para guardar el archivo y obtener la URL
-        // Por ahora, simulamos una URL
-        var urlAdjunto = $"https://storage.example.com/sesiones/{id}/adjuntos/{Guid.NewGuid()}.pdf";
+        var ruta = await _servicioArchivos.GuardarAsync(
+            request.Archivo.OpenReadStream(),
+            request.Archivo.FileName,
+            $"sesiones/{id}/adjuntos");
+
+        var urlAdjunto = _servicioArchivos.ObtenerUrlPublica(ruta);
 
         var command = new AgregarAdjuntoRespuestaCommand(
             SesionId: id,
@@ -188,6 +198,54 @@ public sealed class SesionesController : ControllerBase
 
         await _mediator.Send(command);
         return Ok(new { mensaje = "Adjunto registrado", urlAdjunto });
+    }
+
+    /// <summary>
+    /// Recibe el archivo de grabación de la sesión (video).
+    /// </summary>
+    [HttpPost("{id:guid}/grabacion")]
+    [AllowAnonymous]
+    [Produces("application/json")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> GuardarGrabacion(Guid id, IFormFile archivo)
+    {
+        if (archivo == null || archivo.Length == 0)
+            return BadRequest("El archivo no puede estar vacío");
+
+        var ruta = await _servicioArchivos.GuardarAsync(
+            archivo.OpenReadStream(),
+            archivo.FileName,
+            $"sesiones/{id}/grabacion");
+
+        var urlGrabacion = _servicioArchivos.ObtenerUrlPublica(ruta);
+
+        await _mediator.Send(new GuardarGrabacionSesionCommand(id, urlGrabacion));
+
+        return Ok(new { urlGrabacion });
+    }
+
+    /// <summary>
+    /// Recibe el archivo de grabación de audio de la sesión.
+    /// </summary>
+    [HttpPost("{id:guid}/audio")]
+    [AllowAnonymous]
+    [Produces("application/json")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> GuardarAudio(Guid id, IFormFile archivo)
+    {
+        if (archivo == null || archivo.Length == 0)
+            return BadRequest("El archivo no puede estar vacío");
+
+        var ruta = await _servicioArchivos.GuardarAsync(
+            archivo.OpenReadStream(),
+            archivo.FileName,
+            $"sesiones/{id}/audio");
+
+        var urlGrabacion = _servicioArchivos.ObtenerUrlPublica(ruta);
+
+        await _mediator.Send(new GuardarGrabacionAudioCommand(id, urlGrabacion));
+
+        return Ok(new { urlGrabacion });
     }
 }
 

@@ -1136,41 +1136,43 @@ volumes:
 
 ---
 
-### 5.5 Épica 4 — Tab Lock + Grabación de Sesión y Audio
+### 5.5 Épica 4 — Tab Lock + Grabación de Sesión y Audio ✅
 
 **Objetivo:** Durante una sesión activa, el candidato no puede salir de la pestaña. Se graba la sesión y opcionalmente el audio para capturar el proceso de pensamiento.
+
+> **Completado 2026-03-20**: Todos los ítems de la épica implementados y validados. Backend builds OK, 69/69 tests pasan, frontend build OK.
 
 #### 5.5.1 Tab Lock (Bloqueo de pestaña)
 
 | # | Tarea | Capa |
 |---|---|---|
-| 4.1.1 | Interceptar `visibilitychange` y `blur` events | Frontend |
-| 4.1.2 | Mostrar advertencia modal al intentar salir | Frontend |
-| 4.1.3 | Incrementar contador de violaciones en backend | Backend (ya existe) |
-| 4.1.4 | Bloquear `beforeunload` para evitar cierre/recarga | Frontend |
-| 4.1.5 | Opción evaluador: máximo de violaciones antes de cancelar sesión | Backend Domain |
+| 4.1.1 | ✅ Interceptar `visibilitychange` y `blur` events | Frontend |
+| 4.1.2 | ✅ Mostrar advertencia modal al intentar salir | Frontend |
+| 4.1.3 | ✅ Incrementar contador de violaciones en backend | Backend (ya existe) |
+| 4.1.4 | ✅ Bloquear `beforeunload` para evitar cierre/recarga | Frontend |
+| 4.1.5 | ✅ Opción evaluador: máximo de violaciones antes de cancelar sesión | Backend Domain |
 
 #### 5.5.2 Grabación de Sesión (Screen/Tab)
 
 | # | Tarea | Capa |
 |---|---|---|
-| 4.2.1 | Captura de pantalla/pestaña con `MediaRecorder` API + `getDisplayMedia()` | Frontend |
-| 4.2.2 | Grabar video como WebM/MP4 en chunks | Frontend |
-| 4.2.3 | Subir grabación de sesión al completar | Frontend → Backend |
-| 4.2.4 | Endpoint `POST /api/sesiones/{id}/grabacion` para recibir archivo de video | Backend |
-| 4.2.5 | Almacenar grabación vía `IServicioArchivos` | Backend Infrastructure |
-| 4.2.6 | Agregar campo `UrlGrabacionSesion` a `SesionEvaluacion` | Backend Domain |
+| 4.2.1 | ✅ Captura de pantalla/pestaña con `MediaRecorder` API + `getDisplayMedia()` | Frontend |
+| 4.2.2 | ✅ Grabar video como WebM/MP4 en chunks | Frontend |
+| 4.2.3 | ✅ Subir grabación de sesión al completar | Frontend → Backend |
+| 4.2.4 | ✅ Endpoint `POST /api/sesiones/{id}/grabacion` para recibir archivo de video | Backend |
+| 4.2.5 | ✅ Almacenar grabación vía `IServicioArchivos` | Backend Infrastructure |
+| 4.2.6 | ✅ Agregar campo `UrlGrabacionSesion` a `SesionEvaluacion` | Backend Domain |
 
 #### 5.5.3 Grabación de Audio
 
 | # | Tarea | Capa |
 |---|---|---|
-| 4.3.1 | Captura de micrófono con `getUserMedia({ audio: true })` | Frontend |
-| 4.3.2 | Grabar audio como WebM/MP3 en paralelo a la sesión | Frontend |
-| 4.3.3 | Subir archivo de audio al completar sesión | Frontend → Backend |
-| 4.3.4 | Endpoint `POST /api/sesiones/{id}/audio` | Backend |
-| 4.3.5 | Almacenar audio vía `IServicioArchivos` | Backend Infrastructure |
-| 4.3.6 | Agregar campo `UrlGrabacionAudio` a `SesionEvaluacion` | Backend Domain |
+| 4.3.1 | ✅ Captura de micrófono con `getUserMedia({ audio: true })` | Frontend |
+| 4.3.2 | ✅ Grabar audio como WebM/MP3 en paralelo a la sesión | Frontend |
+| 4.3.3 | ✅ Subir archivo de audio al completar sesión | Frontend → Backend |
+| 4.3.4 | ✅ Endpoint `POST /api/sesiones/{id}/audio` | Backend |
+| 4.3.5 | ✅ Almacenar audio vía `IServicioArchivos` | Backend Infrastructure |
+| 4.3.6 | ✅ Agregar campo `UrlGrabacionAudio` a `SesionEvaluacion` | Backend Domain |
 
 ---
 
@@ -1334,9 +1336,9 @@ Evaluacion (cambios)
 - [x] Mejoras generales UI (Épica 3.4-3.8)
 
 #### Sprint C — Tab Lock + Grabación (Prioridad 4)
-- [ ] Tab Lock completo (Épica 4.1)
-- [ ] Grabación de sesión (Épica 4.2)
-- [ ] Grabación de audio (Épica 4.3)
+- [x] Tab Lock completo (Épica 4.1)
+- [x] Grabación de sesión (Épica 4.2)
+- [x] Grabación de audio (Épica 4.3)
 
 #### Sprint D — Transcripciones + Scoring (Prioridad 5)
 - [ ] Modelo de transcripciones backend (Épica 5.1-5.9)
@@ -1353,11 +1355,11 @@ Evaluacion (cambios)
 
 ### 5.12 Definición de Hecho (DoD) — MVP v2
 
-- [ ] Todos los checklist de QA (Épica 1) marcados ✅
-- [x] Branding "Plataforma de Evaluaciones Técnicas" visible en toda la app
-- [x] UI pulida y responsive en flujo de sesiones
-- [ ] Tab lock activo durante sesiones de candidato
-- [ ] Grabación de audio funcional durante sesiones
+  - [ ] Todos los checklist de QA (Épica 1) marcados ✅
+  - [x] Branding "Plataforma de Evaluaciones Técnicas" visible en toda la app
+  - [x] UI pulida y responsive en flujo de sesiones
+  - [x] Tab lock activo durante sesiones de candidato
+  - [x] Grabación de audio funcional durante sesiones
 - [ ] Transcripciones (sesión + entrevista) evaluables por IA
 - [ ] Scoring combinado: respuestas + transcripción sesión + transcripción entrevista
 - [ ] Umbral de aprobación 70% implementado

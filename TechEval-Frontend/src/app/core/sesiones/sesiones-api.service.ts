@@ -103,4 +103,22 @@ export class SesionesApiService {
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.sesiones}/masivas`, payload
     );
   }
+
+  subirGrabacion(sesionId: string, blob: Blob) {
+    const formData = new FormData();
+    formData.append('archivo', blob, 'grabacion.webm');
+    return this.http.post<{ urlGrabacion: string }>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.sesiones}/${sesionId}/grabacion`,
+      formData
+    );
+  }
+
+  subirAudio(sesionId: string, blob: Blob) {
+    const formData = new FormData();
+    formData.append('archivo', blob, 'audio.webm');
+    return this.http.post<{ urlGrabacion: string }>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.sesiones}/${sesionId}/audio`,
+      formData
+    );
+  }
 }
