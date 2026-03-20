@@ -129,4 +129,52 @@ public class EvaluacionTests
         evaluacion.OrdenAleatorio.Should().BeTrue();
         evaluacion.OrdenPorDificultad.Should().BeFalse();
     }
+
+    [Fact(DisplayName = "ConfigurarSeleccionDinamica en modo Aleatorias sin cantidad debe lanzar excepción")]
+    public void ConfigurarSeleccionDinamica_AleatoriasSinCantidad_DebeLanzarExcepcion()
+    {
+        var evaluacion = Evaluacion.Crear("Test", null, "usr-1");
+        var accion = () => evaluacion.ConfigurarSeleccionDinamica(
+            ModoSeleccionPreguntas.Aleatorias, null, null);
+        accion.Should().Throw<DomainException>();
+    }
+
+    [Fact(DisplayName = "ConfigurarSeleccionDinamica en modo Fijas debe resetear cantidad")]
+    public void ConfigurarSeleccionDinamica_Fijas_DebeResetearCantidad()
+    {
+        var evaluacion = Evaluacion.Crear("Test", null, "usr-1");
+        evaluacion.ConfigurarSeleccionDinamica(ModoSeleccionPreguntas.Aleatorias, 5, null);
+        evaluacion.ConfigurarSeleccionDinamica(ModoSeleccionPreguntas.Fijas, null, null);
+        evaluacion.ModoSeleccionPreguntas.Should().Be(ModoSeleccionPreguntas.Fijas);
+        evaluacion.CantidadPreguntasSesion.Should().BeNull();
+    }
+
+    [Fact(DisplayName = "ConfigurarSeleccionDinamica en modo Aleatorias con cantidad válida debe funcionar")]
+    public void ConfigurarSeleccionDinamica_AleatoriasCantidadValida_DebeFuncionar()
+    {
+        var evaluacion = Evaluacion.Crear("Test", null, "usr-1");
+        evaluacion.ConfigurarSeleccionDinamica(ModoSeleccionPreguntas.Aleatorias, 10, null);
+        evaluacion.ModoSeleccionPreguntas.Should().Be(ModoSeleccionPreguntas.Aleatorias);
+        evaluacion.CantidadPreguntasSesion.Should().Be(10);
+    }
+
+    [Fact(DisplayName = "ConfigurarSeleccionDinamica en modo PorDistribucionDificultad sin distribución debe lanzar excepción")]
+    public void ConfigurarSeleccionDinamica_PorDistribucionSinDistribucion_DebeLanzarExcepcion()
+    {
+        var evaluacion = Evaluacion.Crear("Test", null, "usr-1");
+        var accion = () => evaluacion.ConfigurarSeleccionDinamica(
+            ModoSeleccionPreguntas.PorDistribucionDificultad, null, null);
+        accion.Should().Throw<DomainException>();
+    }
+
+    [Fact(DisplayName = "ConfigurarSeleccionDinamica en modo PorDistribucion con distribución válida debe funcionar")]
+    public void ConfigurarSeleccionDinamica_PorDistribucionValida_DebeFuncionar()
+    {
+        var evaluacion = Evaluacion.Crear("Test", null, "usr-1");
+        var dist = DistribucionDificultad.Crear(3, 4, 3);
+        evaluacion.ConfigurarSeleccionDinamica(
+            ModoSeleccionPreguntas.PorDistribucionDificultad, null, dist);
+        evaluacion.ModoSeleccionPreguntas.Should().Be(ModoSeleccionPreguntas.PorDistribucionDificultad);
+        evaluacion.DistribucionDificultad!.Total.Should().Be(10);
+    }
 }

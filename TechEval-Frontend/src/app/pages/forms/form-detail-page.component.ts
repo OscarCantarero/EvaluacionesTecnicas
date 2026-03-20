@@ -3,7 +3,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { EvaluacionesApiService } from '../../core/evaluaciones/evaluaciones-api.service';
-import { EvaluacionDetalleDto, NivelDificultad, TipoPregunta } from '../../core/evaluaciones/evaluaciones.models';
+import { EvaluacionDetalleDto, ModoSeleccionPreguntas, NivelDificultad, PreguntaBancoDto, TipoPregunta } from '../../core/evaluaciones/evaluaciones.models';
+import { CategoriasApiService, CategoriaDto } from '../../core/categorias/categorias-api.service';
 import { ProblemBannerComponent } from '../../shared/problem-banner/problem-banner.component';
 import { LabelPipe } from '../../shared/pipes/label.pipe';
 
@@ -19,6 +20,7 @@ export class FormDetailPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly evaluacionesApi = inject(EvaluacionesApiService);
+  private readonly categoriasApi = inject(CategoriasApiService);
 
   protected readonly evaluacion = signal<EvaluacionDetalleDto | null>(null);
   protected readonly evaluacionId = signal('');
@@ -28,11 +30,30 @@ export class FormDetailPageComponent implements OnInit {
   protected readonly updatingEvaluacion = signal(false);
   protected readonly updatingPregunta = signal(false);
   protected readonly updatingOpcion = signal(false);
+  protected readonly activando = signal(false);
+  protected readonly categorias = signal<ReadonlyArray<CategoriaDto>>([]);
+
+  // Banco de preguntas
+  protected readonly mostrarBanco = signal(false);
+  protected readonly bancoCargando = signal(false);
+  protected readonly bancoPreguntas = signal<ReadonlyArray<PreguntaBancoDto>>([]);
+  protected readonly bancoSeleccionadas = signal<Set<string>>(new Set());
+  protected readonly agregandoDelBanco = signal(false);
+  protected readonly bancoCategoriaFiltro = signal('');
+  protected readonly bancoDificultadFiltro = signal('');
+  protected readonly bancoTipoFiltro = signal('');
 
   private readonly opcionFormRef = viewChild<ElementRef>('opcionFormRef');
 
   protected readonly tiposPregunta: ReadonlyArray<TipoPregunta> = ['TextoLibre', 'SeleccionUnica', 'SeleccionMultiple'];
   protected readonly nivelesDificultad: ReadonlyArray<NivelDificultad> = ['Facil', 'Medio', 'Dificil'];
+  protected readonly modosSeleccion: ReadonlyArray<ModoSeleccionPreguntas> = ['Fijas', 'Aleatorias', 'PorDistribucionDificultad'];
+
+  protected readonly modoLabels: Record<string, string> = {
+    Fijas: 'Fijas (todas las preguntas)',
+    Aleatorias: 'Aleatorias (N al azar)',
+    PorDistribucionDificultad: 'Por distribución de dificultad'
+  };
 
   protected readonly tipoLabels: Record<string, string> = {
     TextoLibre: 'Texto libre',
@@ -55,7 +76,8 @@ export class FormDetailPageComponent implements OnInit {
     nivelDificultad: ['Medio' as NivelDificultad],
     limiteTiempoSegundos: [0],
     permiteAdjunto: [false],
-    esRevisionManual: [true]
+    esRevisionManual: [true],
+    categoriaId: ['' as string]
   });
 
   protected readonly opcionForm = this.fb.nonNullable.group({
@@ -69,7 +91,12 @@ export class FormDetailPageComponent implements OnInit {
     nombre: ['', [Validators.required, Validators.maxLength(200)]],
     descripcion: ['', [Validators.maxLength(1000)]],
     ordenAleatorio: [false],
-    ordenPorDificultad: [false]
+    ordenPorDificultad: [false],
+    modoSeleccionPreguntas: ['Fijas' as ModoSeleccionPreguntas],
+    cantidadPreguntasSesion: [null as number | null],
+    distribucionFacil: [0],
+    distribucionMedio: [0],
+    distribucionDificil: [0]
   });
 
   protected readonly editPreguntaForm = this.fb.nonNullable.group({
@@ -79,7 +106,8 @@ export class FormDetailPageComponent implements OnInit {
     nivelDificultad: ['Medio' as NivelDificultad],
     limiteTiempoSegundos: [0],
     permiteAdjunto: [false],
-    esRevisionManual: [true]
+    esRevisionManual: [true],
+    categoriaId: ['' as string]
   });
 
   protected readonly editOpcionForm = this.fb.nonNullable.group({
@@ -93,6 +121,7 @@ export class FormDetailPageComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
     this.evaluacionId.set(id);
+    this.categoriasApi.listar().subscribe({ next: (c) => this.categorias.set(c) });
     if (id) {
       this.cargar();
     }
@@ -122,7 +151,12 @@ export class FormDetailPageComponent implements OnInit {
             nombre: ev.nombre,
             descripcion: ev.descripcion ?? '',
             ordenAleatorio: ev.ordenAleatorio,
-            ordenPorDificultad: ev.ordenPorDificultad
+            ordenPorDificultad: ev.ordenPorDificultad,
+            modoSeleccionPreguntas: ev.modoSeleccionPreguntas ?? 'Fijas',
+            cantidadPreguntasSesion: ev.cantidadPreguntasSesion ?? null,
+            distribucionFacil: ev.distribucionFacil ?? 0,
+            distribucionMedio: ev.distribucionMedio ?? 0,
+            distribucionDificil: ev.distribucionDificil ?? 0
           });
 
           const firstPregunta = ev.preguntas[0];
@@ -134,7 +168,8 @@ export class FormDetailPageComponent implements OnInit {
               nivelDificultad: firstPregunta.nivelDificultad,
               limiteTiempoSegundos: firstPregunta.limiteTiempoSegundos ?? 0,
               permiteAdjunto: firstPregunta.permiteAdjunto,
-              esRevisionManual: firstPregunta.esRevisionManual
+              esRevisionManual: firstPregunta.esRevisionManual,
+              categoriaId: firstPregunta.categoriaId ?? ''
             });
 
             const firstOpcion = firstPregunta.opciones[0];
@@ -163,7 +198,8 @@ export class FormDetailPageComponent implements OnInit {
       nivelDificultad: pregunta.nivelDificultad,
       limiteTiempoSegundos: pregunta.limiteTiempoSegundos ?? 0,
       permiteAdjunto: pregunta.permiteAdjunto,
-      esRevisionManual: pregunta.esRevisionManual
+      esRevisionManual: pregunta.esRevisionManual,
+      categoriaId: pregunta.categoriaId ?? ''
     });
   }
 
@@ -216,7 +252,12 @@ export class FormDetailPageComponent implements OnInit {
         nombre: v.nombre.trim(),
         descripcion: v.descripcion.trim() || null,
         ordenAleatorio: v.ordenAleatorio,
-        ordenPorDificultad: v.ordenPorDificultad
+        ordenPorDificultad: v.ordenPorDificultad,
+        modoSeleccionPreguntas: v.modoSeleccionPreguntas,
+        cantidadPreguntasSesion: v.cantidadPreguntasSesion,
+        distribucionFacil: v.distribucionFacil ?? 0,
+        distribucionMedio: v.distribucionMedio ?? 0,
+        distribucionDificil: v.distribucionDificil ?? 0
       })
       .pipe(finalize(() => this.updatingEvaluacion.set(false)))
       .subscribe({ next: () => this.cargar() });
@@ -238,7 +279,8 @@ export class FormDetailPageComponent implements OnInit {
         nivelDificultad: v.nivelDificultad,
         limiteTiempoSegundos: v.limiteTiempoSegundos > 0 ? v.limiteTiempoSegundos : null,
         permiteAdjunto: v.permiteAdjunto,
-        esRevisionManual: v.esRevisionManual
+        esRevisionManual: v.esRevisionManual,
+        categoriaId: v.categoriaId || null
       })
       .pipe(finalize(() => this.updatingPregunta.set(false)))
       .subscribe({ next: () => this.cargar() });
@@ -279,7 +321,8 @@ export class FormDetailPageComponent implements OnInit {
         nivelDificultad: v.nivelDificultad,
         limiteTiempoSegundos: v.limiteTiempoSegundos > 0 ? v.limiteTiempoSegundos : null,
         permiteAdjunto: v.permiteAdjunto,
-        esRevisionManual: v.esRevisionManual
+        esRevisionManual: v.esRevisionManual,
+        categoriaId: v.categoriaId || null
       })
       .pipe(finalize(() => this.creatingPregunta.set(false)))
       .subscribe({
@@ -290,7 +333,8 @@ export class FormDetailPageComponent implements OnInit {
             nivelDificultad: 'Medio',
             limiteTiempoSegundos: 0,
             permiteAdjunto: false,
-            esRevisionManual: true
+            esRevisionManual: true,
+            categoriaId: ''
           });
           this.cargar();
         }
@@ -344,5 +388,58 @@ export class FormDetailPageComponent implements OnInit {
     this.evaluacionesApi
       .eliminarPregunta(this.evaluacionId(), preguntaId)
       .subscribe({ next: () => this.cargar() });
+  }
+
+  protected activarEvaluacion(): void {
+    if (this.activando()) return;
+    this.activando.set(true);
+    this.evaluacionesApi
+      .activarEvaluacion(this.evaluacionId())
+      .pipe(finalize(() => this.activando.set(false)))
+      .subscribe({ next: () => this.cargar() });
+  }
+
+  protected abrirBanco(): void {
+    this.mostrarBanco.set(true);
+    this.bancoSeleccionadas.set(new Set());
+    this.cargarBanco();
+  }
+
+  protected cargarBanco(): void {
+    const evalId = this.evaluacionId();
+    if (!evalId) return;
+    this.bancoCargando.set(true);
+    this.evaluacionesApi
+      .obtenerPreguntasBanco(
+        evalId,
+        this.bancoCategoriaFiltro() || undefined,
+        this.bancoDificultadFiltro() || undefined,
+        this.bancoTipoFiltro() || undefined
+      )
+      .pipe(finalize(() => this.bancoCargando.set(false)))
+      .subscribe({ next: (res) => this.bancoPreguntas.set(res) });
+  }
+
+  protected toggleSeleccionBanco(id: string): void {
+    const set = new Set(this.bancoSeleccionadas());
+    if (set.has(id)) set.delete(id);
+    else set.add(id);
+    this.bancoSeleccionadas.set(set);
+  }
+
+  protected confirmarBanco(): void {
+    const evalId = this.evaluacionId();
+    const ids = [...this.bancoSeleccionadas()];
+    if (!evalId || ids.length === 0 || this.agregandoDelBanco()) return;
+    this.agregandoDelBanco.set(true);
+    this.evaluacionesApi
+      .agregarDelBanco(evalId, ids)
+      .pipe(finalize(() => this.agregandoDelBanco.set(false)))
+      .subscribe({
+        next: () => {
+          this.mostrarBanco.set(false);
+          this.cargar();
+        }
+      });
   }
 }

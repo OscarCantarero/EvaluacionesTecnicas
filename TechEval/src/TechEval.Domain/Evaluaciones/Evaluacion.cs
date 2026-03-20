@@ -14,6 +14,9 @@ public sealed class Evaluacion : AgregadoRaiz
     public EstadoEvaluacion Estado { get; private set; }
     public bool OrdenAleatorio { get; private set; }
     public bool OrdenPorDificultad { get; private set; }
+    public ModoSeleccionPreguntas ModoSeleccionPreguntas { get; private set; } = ModoSeleccionPreguntas.Fijas;
+    public int? CantidadPreguntasSesion { get; private set; }
+    public DistribucionDificultad? DistribucionDificultad { get; private set; }
     public string CreadoPor { get; private set; } = string.Empty;
     public DateTime CreadoEn { get; private set; }
     public DateTime? ActualizadoEn { get; private set; }
@@ -79,10 +82,11 @@ public sealed class Evaluacion : AgregadoRaiz
         Common.ValueObjects.NivelDificultad nivel,
         int? limiteTiempoSegundos,
         bool permiteAdjunto,
-        bool esRevisionManual)
+        bool esRevisionManual,
+        Guid? categoriaId = null)
     {
         var orden = _preguntas.Count + 1;
-        var pregunta = Pregunta.Crear(Id, texto, tipo, nivel, limiteTiempoSegundos, permiteAdjunto, esRevisionManual, orden);
+        var pregunta = Pregunta.Crear(Id, texto, tipo, nivel, limiteTiempoSegundos, permiteAdjunto, esRevisionManual, orden, categoriaId);
         _preguntas.Add(pregunta);
         ActualizadoEn = DateTime.UtcNow;
         return pregunta;
@@ -95,11 +99,13 @@ public sealed class Evaluacion : AgregadoRaiz
         Common.ValueObjects.NivelDificultad nivel,
         int? limiteTiempoSegundos,
         bool permiteAdjunto,
-        bool esRevisionManual)
+        bool esRevisionManual,
+        Guid? categoriaId = null)
     {
         var pregunta = _preguntas.FirstOrDefault(p => p.Id == preguntaId)
             ?? throw ErroresEvaluacion.PreguntaNoEncontrada.ToException();
         pregunta.Actualizar(texto, tipo, nivel, limiteTiempoSegundos, permiteAdjunto, esRevisionManual);
+        pregunta.AsignarCategoria(categoriaId);
         ActualizadoEn = DateTime.UtcNow;
     }
 
@@ -132,6 +138,29 @@ public sealed class Evaluacion : AgregadoRaiz
         var pregunta = _preguntas.FirstOrDefault(p => p.Id == preguntaId)
             ?? throw ErroresEvaluacion.PreguntaNoEncontrada.ToException();
         pregunta.EliminarOpcion(opcionId);
+        ActualizadoEn = DateTime.UtcNow;
+    }
+
+    public void ConfigurarSeleccionDinamica(
+        ModoSeleccionPreguntas modo,
+        int? cantidadPreguntasSesion,
+        DistribucionDificultad? distribucionDificultad)
+    {
+        if (modo == ModoSeleccionPreguntas.Aleatorias)
+        {
+            if (!cantidadPreguntasSesion.HasValue || cantidadPreguntasSesion <= 0)
+                throw ErroresEvaluacion.CantidadPreguntasInvalida.ToException();
+        }
+
+        if (modo == ModoSeleccionPreguntas.PorDistribucionDificultad)
+        {
+            if (distribucionDificultad == null)
+                throw ErroresEvaluacion.DistribucionRequerida.ToException();
+        }
+
+        ModoSeleccionPreguntas = modo;
+        CantidadPreguntasSesion = modo == ModoSeleccionPreguntas.Fijas ? null : cantidadPreguntasSesion;
+        DistribucionDificultad = modo == ModoSeleccionPreguntas.PorDistribucionDificultad ? distribucionDificultad : null;
         ActualizadoEn = DateTime.UtcNow;
     }
 

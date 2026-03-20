@@ -154,7 +154,7 @@ namespace TechEval.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TechEval.Domain.Evaluaciones.Evaluacion", b =>
+            modelBuilder.Entity("TechEval.Domain.Evaluaciones.Categoria", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -174,10 +174,51 @@ namespace TechEval.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("categorias", (string)null);
+                });
+
+            modelBuilder.Entity("TechEval.Domain.Evaluaciones.Evaluacion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ActualizadoEn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CantidadPreguntasSesion")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreadoEn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreadoPor")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ModoSeleccionPreguntas")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -259,9 +300,15 @@ namespace TechEval.Infrastructure.Persistence.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<Guid?>("categoria_id")
+                        .HasColumnName("categoria_id")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EvaluacionId");
+
+                    b.HasIndex("categoria_id");
 
                     b.ToTable("preguntas", (string)null);
                 });
@@ -337,6 +384,49 @@ namespace TechEval.Infrastructure.Persistence.Migrations
 
                     b.ToTable("puntuaciones_pregunta", (string)null);
                 });
+
+            modelBuilder.Entity("TechEval.Domain.Resultados.TranscripcionEvaluacion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreadaEn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Contenido")
+                        .HasMaxLength(50000)
+                        .HasColumnType("character varying(50000)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("JustificacionIA")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<decimal?>("PuntajeIA")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<Guid>("ResultadoEvaluacionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UrlArchivo")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResultadoEvaluacionId");
+
+                    b.HasIndex("Tipo");
+
+                    b.ToTable("transcripciones_evaluacion", (string)null);
+                });
+
 
             modelBuilder.Entity("TechEval.Domain.Resultados.ResultadoEvaluacion", b =>
                 {
@@ -547,6 +637,19 @@ namespace TechEval.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("IniciadaEn")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("MaxViolacionesPestana")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("UrlGrabacionAudio")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("UrlGrabacionSesion")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CandidatoId");
@@ -741,6 +844,16 @@ namespace TechEval.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TechEval.Domain.Resultados.TranscripcionEvaluacion", b =>
+                {
+                    b.HasOne("TechEval.Domain.Resultados.ResultadoEvaluacion", null)
+                        .WithMany("Transcripciones")
+                        .HasForeignKey("ResultadoEvaluacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+
             modelBuilder.Entity("TechEval.Domain.Sesiones.PreguntaSesion", b =>
                 {
                     b.HasOne("TechEval.Domain.Sesiones.RespuestaCandidato", "Respuesta")
@@ -758,6 +871,31 @@ namespace TechEval.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("TechEval.Domain.Evaluaciones.Evaluacion", b =>
                 {
                     b.Navigation("Preguntas");
+
+                    b.OwnsOne("TechEval.Domain.Evaluaciones.DistribucionDificultad", "DistribucionDificultad", b1 =>
+                        {
+                            b1.Property<Guid>("EvaluacionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Dificil")
+                                .HasColumnType("integer")
+                                .HasColumnName("distribucion_dificil");
+
+                            b1.Property<int>("Facil")
+                                .HasColumnType("integer")
+                                .HasColumnName("distribucion_facil");
+
+                            b1.Property<int>("Medio")
+                                .HasColumnType("integer")
+                                .HasColumnName("distribucion_medio");
+
+                            b1.HasKey("EvaluacionId");
+
+                            b1.ToTable("evaluaciones");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EvaluacionId");
+                        });
                 });
 
             modelBuilder.Entity("TechEval.Domain.Evaluaciones.Pregunta", b =>
@@ -768,6 +906,8 @@ namespace TechEval.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("TechEval.Domain.Resultados.ResultadoEvaluacion", b =>
                 {
                     b.Navigation("Puntuaciones");
+
+                    b.Navigation("Transcripciones");
                 });
 
             modelBuilder.Entity("TechEval.Domain.Sesiones.SesionEvaluacion", b =>

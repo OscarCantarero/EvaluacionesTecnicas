@@ -37,6 +37,25 @@ export class CandidateQuizPageComponent {
   protected readonly opcionSeleccionada = signal<string>('');          // SeleccionUnica
   protected readonly opcionesSeleccionadas = signal<Set<string>>(new Set()); // SeleccionMultiple
 
+  // Tab Lock — violaciones de pestaña
+  protected readonly mostrarModalViolacion = signal(false);
+  protected readonly contadorViolaciones = signal(0);
+
+  // Screen Recording
+  protected readonly grabandoPantalla = signal(false);
+  protected readonly grabacionSesionBlob = signal<Blob | null>(null);
+  protected readonly subiendoGrabacion = signal(false);
+  protected readonly grabacionDenegada = signal(false);  // true when screen/audio permissions denied
+  private mediaRecorderPantalla: MediaRecorder | null = null;
+  private chunksPantalla: BlobPart[] = [];
+
+  // Audio Recording
+  protected readonly grabandoAudio = signal(false);
+  protected readonly grabacionAudioBlob = signal<Blob | null>(null);
+  protected readonly subiendoAudio = signal(false);
+  private mediaRecorderAudio: MediaRecorder | null = null;
+  private chunksAudio: BlobPart[] = [];
+
   protected readonly respuestaForm = this.fb.nonNullable.group({
     texto: ['']
   });
@@ -52,6 +71,12 @@ export class CandidateQuizPageComponent {
   private timerInterval: ReturnType<typeof setInterval> | null = null;
   private tiempoInicioPreguntas = 0;
 
+  private readonly onBeforeUnload = (e: BeforeUnloadEvent): void => {
+    if (!this.sesionCompletada()) {
+      e.preventDefault();
+    }
+  };
+
   constructor() {
     const sesionId = this.route.snapshot.paramMap.get('sesionId') ?? '';
     const codigo = this.route.snapshot.queryParamMap.get('codigo') ?? '';
@@ -62,10 +87,21 @@ export class CandidateQuizPageComponent {
     }
 
     document.addEventListener('visibilitychange', this.onVisibilityChange);
+    window.addEventListener('blur', this.onVisibilityChange);
+    window.addEventListener('beforeunload', this.onBeforeUnload);
+
     this.destroyRef.onDestroy(() => {
       document.removeEventListener('visibilitychange', this.onVisibilityChange);
+      window.removeEventListener('blur', this.onVisibilityChange);
+      window.removeEventListener('beforeunload', this.onBeforeUnload);
       this.pararTimer();
+      this.detenerGrabacionPantalla();
+      this.detenerGrabacionAudio();
     });
+  }
+
+  protected cerrarModalViolacion(): void {
+    this.mostrarModalViolacion.set(false);
   }
 
   protected enviarRespuesta(fueExpirado = false): void {
@@ -95,6 +131,9 @@ export class CandidateQuizPageComponent {
           if (response.sesionCompletada) {
             this.sesionCompletada.set(true);
             this.preguntaActual.set(null);
+            this.detenerGrabacionPantalla();
+            this.detenerGrabacionAudio();
+            this.subirGrabaciones();
             return;
           }
 
@@ -148,6 +187,8 @@ export class CandidateQuizPageComponent {
           if (response.preguntaActual) {
             this.mostrarPregunta(response.preguntaActual);
           }
+          this.iniciarGrabacionPantalla().catch(err => console.warn('No se pudo iniciar grabación de pantalla:', err));
+          this.iniciarGrabacionAudio().catch(err => console.warn('No se pudo iniciar grabación de audio:', err));
         },
         error: () => {
           this.errorSesion.set('No se pudo iniciar la sesión. Verifica el código de acceso e intenta de nuevo.');
@@ -200,10 +241,89 @@ export class CandidateQuizPageComponent {
   }
 
   private readonly onVisibilityChange = (): void => {
-    if (document.hidden && this.sesionId()) {
+    if (document.hidden && this.sesionId() && !this.sesionCompletada()) {
       this.sesionesApi.registrarViolacionPestana(this.sesionId()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+      this.contadorViolaciones.update(n => n + 1);
+      this.mostrarModalViolacion.set(true);
     }
   };
+
+  // ── Screen Recording ──────────────────────────────────────────────────────
+
+  private async iniciarGrabacionPantalla(): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      this.chunksPantalla = [];
+      this.mediaRecorderPantalla = new MediaRecorder(stream);
+      this.mediaRecorderPantalla.ondataavailable = (e) => {
+        if (e.data.size > 0) this.chunksPantalla.push(e.data);
+      };
+      this.mediaRecorderPantalla.onstop = () => {
+        const blob = new Blob(this.chunksPantalla, { type: 'video/webm' });
+        this.grabacionSesionBlob.set(blob);
+        stream.getTracks().forEach(t => t.stop());
+      };
+      this.mediaRecorderPantalla.start();
+      this.grabandoPantalla.set(true);
+    } catch (err) {
+      console.warn('Grabación de pantalla no disponible o denegada:', err);
+      this.grabacionDenegada.set(true);
+    }
+  }
+
+  private detenerGrabacionPantalla(): void {
+    if (this.mediaRecorderPantalla && this.mediaRecorderPantalla.state !== 'inactive') {
+      this.mediaRecorderPantalla.stop();
+      this.grabandoPantalla.set(false);
+    }
+  }
+
+  // ── Audio Recording ───────────────────────────────────────────────────────
+
+  private async iniciarGrabacionAudio(): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.chunksAudio = [];
+      this.mediaRecorderAudio = new MediaRecorder(stream);
+      this.mediaRecorderAudio.ondataavailable = (e) => {
+        if (e.data.size > 0) this.chunksAudio.push(e.data);
+      };
+      this.mediaRecorderAudio.onstop = () => {
+        const blob = new Blob(this.chunksAudio, { type: 'audio/webm' });
+        this.grabacionAudioBlob.set(blob);
+        stream.getTracks().forEach(t => t.stop());
+      };
+      this.mediaRecorderAudio.start();
+      this.grabandoAudio.set(true);
+    } catch (err) {
+      console.warn('Grabación de audio no disponible o denegada:', err);
+      this.grabacionDenegada.set(true);
+    }
+  }
+
+  private detenerGrabacionAudio(): void {
+    if (this.mediaRecorderAudio && this.mediaRecorderAudio.state !== 'inactive') {
+      this.mediaRecorderAudio.stop();
+      this.grabandoAudio.set(false);
+    }
+  }
+
+  // ── Upload recordings on completion ──────────────────────────────────────
+
+  private subirGrabaciones(): void {
+    const sesionBlob = this.grabacionSesionBlob();
+    if (sesionBlob) {
+      this.sesionesApi.subirGrabacion(this.sesionId(), sesionBlob)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({ error: (err) => console.error('Error al subir grabación de pantalla:', err) });
+    }
+    const audioBlob = this.grabacionAudioBlob();
+    if (audioBlob) {
+      this.sesionesApi.subirAudio(this.sesionId(), audioBlob)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({ error: (err) => console.error('Error al subir grabación de audio:', err) });
+    }
+  }
 
   protected onArchivoSeleccionado(event: Event): void {
     const input = event.target as HTMLInputElement;

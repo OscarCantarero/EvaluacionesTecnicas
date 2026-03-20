@@ -16,6 +16,22 @@
           {{ tiempoRestante() }}s
         </span>
       }
+      @if (grabandoPantalla()) {
+        <span class="badge badge-error gap-1 animate-pulse">
+          <span class="inline-block w-2 h-2 rounded-full bg-white"></span>REC
+        </span>
+      }
+      @if (grabandoAudio()) {
+        <span class="badge badge-warning gap-1 animate-pulse">
+          <span class="inline-block w-2 h-2 rounded-full bg-white"></span>AUDIO
+        </span>
+      }
+      @if (contadorViolaciones() > 0) {
+        <span class="badge badge-error badge-outline">⚠ {{ contadorViolaciones() }} violación(es)</span>
+      }
+      @if (grabacionDenegada()) {
+        <span class="badge badge-warning badge-outline text-xs">⚠ Grabación no activa (permiso denegado)</span>
+      }
     </div>
     </div>
   </header>
@@ -31,7 +47,10 @@
       </div>
     </article>
   } @else if (loading()) {
-    <p class="text-base-content/70">Cargando sesion...</p>
+    <div class="flex flex-col items-center gap-4 py-12">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="text-base-content/70">Cargando sesión...</p>
+    </div>
   } @else if (sesionCompletada()) {
     <article class="alert alert-success">
       <h3>Sesion completada</h3>
@@ -130,6 +149,19 @@
     </article>
     <div class="mt-4">
       <a class="ui-btn-secondary" routerLink="/dashboard">Regresar al inicio</a>
+    </div>
+  }
+
+  @if (mostrarModalViolacion()) {
+    <div class="modal modal-open">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg text-error">⚠ Violación detectada</h3>
+        <p class="py-4">Has salido de la pestaña de evaluación. Esta acción ha sido registrada. Por favor mantente en esta pestaña durante toda la sesión.</p>
+        <p class="text-sm text-base-content/60">Violaciones registradas: {{ contadorViolaciones() }}</p>
+        <div class="modal-action">
+          <button class="btn btn-primary" (click)="cerrarModalViolacion()">Entendido, continuar</button>
+        </div>
+      </div>
     </div>
   }
 </section>

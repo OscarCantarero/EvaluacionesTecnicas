@@ -1,5 +1,6 @@
 export type TipoPregunta = 'TextoLibre' | 'SeleccionUnica' | 'SeleccionMultiple';
 export type NivelDificultad = 'Facil' | 'Medio' | 'Dificil';
+export type ModoSeleccionPreguntas = 'Fijas' | 'Aleatorias' | 'PorDistribucionDificultad';
 
 export interface EvaluacionResumenDto {
   readonly id: string;
@@ -10,6 +11,7 @@ export interface EvaluacionResumenDto {
   readonly ordenPorDificultad: boolean;
   readonly totalPreguntas: number;
   readonly creadoEn: string;
+  readonly modoSeleccionPreguntas: ModoSeleccionPreguntas;
 }
 
 export interface OpcionRespuestaDto {
@@ -29,6 +31,7 @@ export interface PreguntaDto {
   readonly permiteAdjunto: boolean;
   readonly esRevisionManual: boolean;
   readonly orden: number;
+  readonly categoriaId: string | null;
   readonly opciones: ReadonlyArray<OpcionRespuestaDto>;
 }
 
@@ -42,6 +45,11 @@ export interface EvaluacionDetalleDto {
   readonly creadoPor: string;
   readonly creadoEn: string;
   readonly actualizadoEn: string | null;
+  readonly modoSeleccionPreguntas: ModoSeleccionPreguntas;
+  readonly cantidadPreguntasSesion: number | null;
+  readonly distribucionFacil: number | null;
+  readonly distribucionMedio: number | null;
+  readonly distribucionDificil: number | null;
   readonly preguntas: ReadonlyArray<PreguntaDto>;
 }
 
@@ -57,6 +65,11 @@ export interface ActualizarEvaluacionRequest {
   readonly descripcion: string | null;
   readonly ordenAleatorio: boolean;
   readonly ordenPorDificultad: boolean;
+  readonly modoSeleccionPreguntas: ModoSeleccionPreguntas;
+  readonly cantidadPreguntasSesion: number | null;
+  readonly distribucionFacil: number;
+  readonly distribucionMedio: number;
+  readonly distribucionDificil: number;
 }
 
 export interface CrearEvaluacionResponse {
@@ -70,6 +83,7 @@ export interface CrearPreguntaRequest {
   readonly limiteTiempoSegundos: number | null;
   readonly permiteAdjunto: boolean;
   readonly esRevisionManual: boolean;
+  readonly categoriaId: string | null;
 }
 
 export interface ActualizarPreguntaRequest {
@@ -79,6 +93,7 @@ export interface ActualizarPreguntaRequest {
   readonly limiteTiempoSegundos: number | null;
   readonly permiteAdjunto: boolean;
   readonly esRevisionManual: boolean;
+  readonly categoriaId: string | null;
 }
 
 export interface CrearPreguntaResponse {
@@ -99,6 +114,20 @@ export interface ActualizarOpcionRequest {
 
 export interface CrearOpcionResponse {
   readonly id: string;
+}
+
+// ── Banco de Preguntas ──
+
+export interface PreguntaBancoDto {
+  readonly id: string;
+  readonly evaluacionId: string;
+  readonly textoEvaluacion: string;
+  readonly texto: string;
+  readonly tipoPregunta: TipoPregunta;
+  readonly nivelDificultad: NivelDificultad;
+  readonly categoriaId: string | null;
+  readonly nombreCategoria: string | null;
+  readonly totalOpciones: number;
 }
 
 // ── Comparación y Ranking ──

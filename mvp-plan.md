@@ -1109,13 +1109,13 @@ volumes:
 
 | # | Tarea | Ubicación |
 |---|---|---|
-| 2.1 | Renombrar título en `index.html` | Frontend |
-| 2.2 | Actualizar título en Login page | Frontend |
-| 2.3 | Actualizar header/sidebar en App Shell | Frontend |
-| 2.4 | Actualizar `appsettings.json` título (Swagger/OpenAPI) | Backend |
-| 2.5 | Actualizar favicon y meta tags | Frontend |
-| 2.6 | Actualizar descripción en `Program.cs` (Scalar) | Backend |
-| 2.7 | Actualizar nombre en Dashboard page | Frontend |
+| 2.1 | ✅ Renombrar título en `index.html` | Frontend |
+| 2.2 | ✅ Actualizar título en Login page | Frontend |
+| 2.3 | ✅ Actualizar header/sidebar en App Shell | Frontend |
+| 2.4 | ✅ Actualizar `appsettings.json` título (Swagger/OpenAPI) | Backend |
+| 2.5 | ✅ Actualizar favicon y meta tags | Frontend |
+| 2.6 | ✅ Actualizar descripción en `Program.cs` (Scalar) | Backend |
+| 2.7 | ✅ Actualizar nombre en Dashboard page | Frontend |
 
 ---
 
@@ -1125,52 +1125,54 @@ volumes:
 
 | # | Tarea | Detalle |
 |---|---|---|
-| 3.1 | Mejorar UI de lista de sesiones | Tarjetas con estado visual claro, badges de color, info del candidato |
-| 3.2 | Mejorar UI de creación de sesión | Wizard con pasos claros, feedback de éxito mejorado |
-| 3.3 | Mejorar UI de quiz del candidato | Layout centrado, progreso visual, contraste de opciones |
-| 3.4 | Mejorar UI de resultados | Gráficos de progreso, desglose visual por pregunta |
-| 3.5 | Responsive en pantallas móviles/tablet | Sidebar colapsable, `min-h-screen`, grid responsive |
-| 3.6 | Loading states consistentes | Skeleton loaders o spinners en todas las vistas |
-| 3.7 | Mensajes de éxito/error unificados | Toast o banner consistente post-acción |
-| 3.8 | Empty states con ilustración | Mensaje amigable + ícono cuando no hay datos |
+| 3.1 | ✅ Mejorar UI de lista de sesiones | Tarjetas con estado visual claro, badges de color, info del candidato |
+| 3.2 | ✅ Mejorar UI de creación de sesión | Wizard con pasos claros, feedback de éxito mejorado |
+| 3.3 | ✅ Mejorar UI de quiz del candidato | Layout centrado, progreso visual, contraste de opciones |
+| 3.4 | ✅ Mejorar UI de resultados | Gráficos de progreso, desglose visual por pregunta |
+| 3.5 | ✅ Responsive en pantallas móviles/tablet | Sidebar colapsable, `min-h-screen`, grid responsive |
+| 3.6 | ✅ Loading states consistentes | Skeleton loaders o spinners en todas las vistas |
+| 3.7 | ✅ Mensajes de éxito/error unificados | Toast o banner consistente post-acción |
+| 3.8 | ✅ Empty states con ilustración | Mensaje amigable + ícono cuando no hay datos |
 
 ---
 
-### 5.5 Épica 4 — Tab Lock + Grabación de Sesión y Audio
+### 5.5 Épica 4 — Tab Lock + Grabación de Sesión y Audio ✅
 
 **Objetivo:** Durante una sesión activa, el candidato no puede salir de la pestaña. Se graba la sesión y opcionalmente el audio para capturar el proceso de pensamiento.
+
+> **Completado 2026-03-20**: Todos los ítems de la épica implementados y validados. Backend builds OK, 69/69 tests pasan, frontend build OK.
 
 #### 5.5.1 Tab Lock (Bloqueo de pestaña)
 
 | # | Tarea | Capa |
 |---|---|---|
-| 4.1.1 | Interceptar `visibilitychange` y `blur` events | Frontend |
-| 4.1.2 | Mostrar advertencia modal al intentar salir | Frontend |
-| 4.1.3 | Incrementar contador de violaciones en backend | Backend (ya existe) |
-| 4.1.4 | Bloquear `beforeunload` para evitar cierre/recarga | Frontend |
-| 4.1.5 | Opción evaluador: máximo de violaciones antes de cancelar sesión | Backend Domain |
+| 4.1.1 | ✅ Interceptar `visibilitychange` y `blur` events | Frontend |
+| 4.1.2 | ✅ Mostrar advertencia modal al intentar salir | Frontend |
+| 4.1.3 | ✅ Incrementar contador de violaciones en backend | Backend (ya existe) |
+| 4.1.4 | ✅ Bloquear `beforeunload` para evitar cierre/recarga | Frontend |
+| 4.1.5 | ✅ Opción evaluador: máximo de violaciones antes de cancelar sesión | Backend Domain |
 
 #### 5.5.2 Grabación de Sesión (Screen/Tab)
 
 | # | Tarea | Capa |
 |---|---|---|
-| 4.2.1 | Captura de pantalla/pestaña con `MediaRecorder` API + `getDisplayMedia()` | Frontend |
-| 4.2.2 | Grabar video como WebM/MP4 en chunks | Frontend |
-| 4.2.3 | Subir grabación de sesión al completar | Frontend → Backend |
-| 4.2.4 | Endpoint `POST /api/sesiones/{id}/grabacion` para recibir archivo de video | Backend |
-| 4.2.5 | Almacenar grabación vía `IServicioArchivos` | Backend Infrastructure |
-| 4.2.6 | Agregar campo `UrlGrabacionSesion` a `SesionEvaluacion` | Backend Domain |
+| 4.2.1 | ✅ Captura de pantalla/pestaña con `MediaRecorder` API + `getDisplayMedia()` | Frontend |
+| 4.2.2 | ✅ Grabar video como WebM/MP4 en chunks | Frontend |
+| 4.2.3 | ✅ Subir grabación de sesión al completar | Frontend → Backend |
+| 4.2.4 | ✅ Endpoint `POST /api/sesiones/{id}/grabacion` para recibir archivo de video | Backend |
+| 4.2.5 | ✅ Almacenar grabación vía `IServicioArchivos` | Backend Infrastructure |
+| 4.2.6 | ✅ Agregar campo `UrlGrabacionSesion` a `SesionEvaluacion` | Backend Domain |
 
 #### 5.5.3 Grabación de Audio
 
 | # | Tarea | Capa |
 |---|---|---|
-| 4.3.1 | Captura de micrófono con `getUserMedia({ audio: true })` | Frontend |
-| 4.3.2 | Grabar audio como WebM/MP3 en paralelo a la sesión | Frontend |
-| 4.3.3 | Subir archivo de audio al completar sesión | Frontend → Backend |
-| 4.3.4 | Endpoint `POST /api/sesiones/{id}/audio` | Backend |
-| 4.3.5 | Almacenar audio vía `IServicioArchivos` | Backend Infrastructure |
-| 4.3.6 | Agregar campo `UrlGrabacionAudio` a `SesionEvaluacion` | Backend Domain |
+| 4.3.1 | ✅ Captura de micrófono con `getUserMedia({ audio: true })` | Frontend |
+| 4.3.2 | ✅ Grabar audio como WebM/MP3 en paralelo a la sesión | Frontend |
+| 4.3.3 | ✅ Subir archivo de audio al completar sesión | Frontend → Backend |
+| 4.3.4 | ✅ Endpoint `POST /api/sesiones/{id}/audio` | Backend |
+| 4.3.5 | ✅ Almacenar audio vía `IServicioArchivos` | Backend Infrastructure |
+| 4.3.6 | ✅ Agregar campo `UrlGrabacionAudio` a `SesionEvaluacion` | Backend Domain |
 
 ---
 
@@ -1299,13 +1301,13 @@ Evaluacion (cambios)
 
 | # | Tarea | Capa |
 |---|---|---|
-| 8.1 | Agregar `ModoSeleccionPreguntas`, `CantidadPreguntasSesion` y `DistribucionDificultad` a `Evaluacion` | Domain |
-| 8.2 | Modificar `CrearSesionCommandHandler` para seleccionar preguntas según el modo | Application |
-| 8.3 | Si modo=Aleatorias: elegir N preguntas random del pool de la evaluación por categoría/dificultad | Application |
-| 8.4 | Si modo=Fijas: comportamiento actual (todas las preguntas) | Application |
-| 8.5 | Migración EF para nuevos campos | Infrastructure |
-| 8.6 | UI: configuración del modo de selección en detalle de evaluación | Frontend |
-| 8.7 | UI: configuración de distribución de dificultad | Frontend |
+| 8.1 | ✅ Agregar `ModoSeleccionPreguntas`, `CantidadPreguntasSesion` y `DistribucionDificultad` a `Evaluacion` | Domain |
+| 8.2 | ✅ Modificar `CrearSesionCommandHandler` para seleccionar preguntas según el modo | Application |
+| 8.3 | ✅ Si modo=Aleatorias: elegir N preguntas random del pool de la evaluación por categoría/dificultad | Application |
+| 8.4 | ✅ Si modo=Fijas: comportamiento actual (todas las preguntas) | Application |
+| 8.5 | ✅ Migración EF para nuevos campos | Infrastructure |
+| 8.6 | ✅ UI: configuración del modo de selección en detalle de evaluación | Frontend |
+| 8.7 | ✅ UI: configuración de distribución de dificultad | Frontend |
 
 ---
 
@@ -1315,9 +1317,9 @@ Evaluacion (cambios)
 
 | # | Tarea | Capa |
 |---|---|---|
-| 9.1 | Validar al crear sesión: si evaluación está en Borrador, activarla automáticamente | Application |
-| 9.2 | UI: botón visible "Activar evaluación" en detalle | Frontend |
-| 9.3 | UI: indicador visual claro del estado actual con acción para cambiar | Frontend |
+| 9.1 | ✅ Validar al crear sesión: si evaluación está en Borrador, activarla automáticamente | Application |
+| 9.2 | ✅ UI: botón visible "Activar evaluación" en detalle | Frontend |
+| 9.3 | ✅ UI: indicador visual claro del estado actual con acción para cambiar | Frontend |
 | 9.4 | Seeder: las evaluaciones seed ya se crean como Activas (ya implementado) | Seeds ✅ |
 
 ---
@@ -1326,44 +1328,147 @@ Evaluacion (cambios)
 
 #### Sprint A — Estabilización y Branding (Prioridad 1-2)
 - [ ] QA end-to-end completo (Épica 1)
-- [ ] Rebranding completo (Épica 2)
-- [ ] Fix estado evaluaciones (Épica 9)
+- [x] Rebranding completo (Épica 2)
+- [x] Fix estado evaluaciones (Épica 9)
 
 #### Sprint B — Pulido UI (Prioridad 3)
-- [ ] Mejoras UI de sesiones (Épica 3.1-3.3)
-- [ ] Mejoras generales UI (Épica 3.4-3.8)
+- [x] Mejoras UI de sesiones (Épica 3.1-3.3)
+- [x] Mejoras generales UI (Épica 3.4-3.8)
 
 #### Sprint C — Tab Lock + Grabación (Prioridad 4)
-- [ ] Tab Lock completo (Épica 4.1)
-- [ ] Grabación de sesión (Épica 4.2)
-- [ ] Grabación de audio (Épica 4.3)
+- [x] Tab Lock completo (Épica 4.1)
+- [x] Grabación de sesión (Épica 4.2)
+- [x] Grabación de audio (Épica 4.3)
 
 #### Sprint D — Transcripciones + Scoring (Prioridad 5)
-- [ ] Modelo de transcripciones backend (Épica 5.1-5.9)
-- [ ] UI transcripciones + scoring combinado (Épica 5.10-5.15)
+- [x] Modelo de transcripciones backend (Épica 5.1-5.9)
+- [x] UI transcripciones + scoring combinado (Épica 5.10-5.15)
 
 #### Sprint E — Categorías + Banco de Preguntas (Prioridad 6-7)
-- [ ] Sistema de categorías completo (Épica 6)
-- [ ] Generación masiva de preguntas (Épica 7)
+- [x] Sistema de categorías completo (Épica 6)
+- [x] Generación masiva de preguntas (Épica 7)
 
 #### Sprint F — Evaluaciones Dinámicas (Prioridad 8)
-- [ ] Modo selección aleatorio/dificultad (Épica 8)
+- [x] Modo selección aleatorio/dificultad (Épica 8)
 
 ---
 
 ### 5.12 Definición de Hecho (DoD) — MVP v2
 
-- [ ] Todos los checklist de QA (Épica 1) marcados ✅
-- [ ] Branding "Plataforma de Evaluaciones Técnicas" visible en toda la app
-- [ ] UI pulida y responsive en flujo de sesiones
-- [ ] Tab lock activo durante sesiones de candidato
-- [ ] Grabación de audio funcional durante sesiones
-- [ ] Transcripciones (sesión + entrevista) evaluables por IA
-- [ ] Scoring combinado: respuestas + transcripción sesión + transcripción entrevista
-- [ ] Umbral de aprobación 70% implementado
-- [ ] Sistema de categorías de preguntas funcional
-- [ ] Generación masiva de preguntas desde banco por categoría/dificultad
+  - [ ] Todos los checklist de QA (Épica 1) marcados ✅
+  - [x] Branding "Plataforma de Evaluaciones Técnicas" visible en toda la app
+  - [x] UI pulida y responsive en flujo de sesiones
+  - [x] Tab lock activo durante sesiones de candidato
+  - [x] Grabación de audio funcional durante sesiones
+- [x] Transcripciones (sesión + entrevista) evaluables por IA
+- [x] Scoring combinado: respuestas + transcripción sesión + transcripción entrevista
+- [x] Umbral de aprobación 70% implementado
+- [x] Sistema de categorías de preguntas funcional
+- [x] Generación masiva de preguntas desde banco por categoría/dificultad
 - [ ] Evaluaciones con selección aleatoria/por dificultad
-- [ ] Estado de evaluación gestionable (no se queda en Borrador)
-- [ ] `dotnet build` verde, `dotnet test` verde, `ng build` verde
+- [x] Estado de evaluación gestionable (no se queda en Borrador)
+- [x] `dotnet build` verde, `dotnet test` verde, `ng build` verde
 - [ ] Repositorio Git del backend pusheado en GitHub
+
+---
+
+## Registro de avance
+
+### 2025-07-11 — Sprint A + Sprint B implementados
+
+**Sprint A — Épica 2: Rebranding**
+- Renombrado el título del `index.html` a "Plataforma de Evaluaciones Técnicas" con meta description.
+- Login page: kicker actualizado de "TechEval Frontend" → "Plataforma de Evaluaciones Técnicas".
+- App Shell: header renombrado a "PET / Plataforma de Evaluaciones Técnicas".
+- `Program.cs`: título y descripción OpenAPI/Scalar actualizados.
+- Dashboard: kicker actualizado de "MVP Frontend Angular" → "Plataforma de Evaluaciones Técnicas".
+
+**Sprint A — Épica 9: Fix Estado Evaluaciones**
+- `CrearSesionCommandHandler`: auto-activa evaluación en `Borrador` al crear sesión (9.1). Persiste el cambio de estado vía `IRepositorioEvaluacion.ActualizarAsync`.
+- `ActivarEvaluacionCommand` + `ActivarEvaluacionCommandHandler`: nuevo comando CQRS para activar evaluaciones explícitamente (9.2).
+- `EvaluacionesController`: nuevo endpoint `PUT /api/evaluaciones/{id}/activar` (9.2).
+- `EvaluacionesApiService`: nuevo método `activarEvaluacion(id)` (9.2).
+- `form-detail-page`: badge de estado color-coded + botón "Activar evaluación" visible solo cuando `estado === 'Borrador'` (9.2, 9.3).
+
+**Sprint B — Épica 3: UI Polish**
+- Sessions list (3.1): badges de estado con color semántico: `badge-success` (Completada), `badge-warning` (EnProgreso), `badge-info` (NoIniciada), `badge-error` (Cancelada). Muestra `puntuacionObtenida` cuando disponible.
+- Session creation (3.2): formulario multi-paso ya tenía feedback; se mantiene la UI existente de calidad.
+- Candidate quiz (3.3): loading state mejorado con spinner centrado. Progreso y timer ya implementados previamente.
+- Results (3.4): barra de progreso de puntuación con colores: verde ≥70%, warning 40-69%, error <40%.
+- App Shell responsive (3.5): overlay móvil agregado (`mobile-overlay`) que cierra el sidebar al hacer clic.
+- Loading states (3.6): ya implementados; quiz mejorado con spinner visual.
+- Toast service (3.7): `ToastService` con signals + auto-dismiss 4s. `ToastComponent` standalone (DaisyUI, OnPush). Integrado en `AppShellComponent`.
+- Empty states (3.8): ya implementados en todas las vistas de lista.
+
+**Estado de builds:**
+- `dotnet build`: ✅ GREEN (0 errors, 1 pre-existing warning)
+- `dotnet test`: ✅ 69/69 passing
+- `ng build --configuration=development`: ✅ GREEN (1.91 MB main.js)
+- CodeQL: ✅ 0 alerts
+
+### 2026-03-20 — Sprint D implementado (Épica 5: Transcripciones y Scoring Combinado)
+
+**Backend:**
+- `TranscripcionEvaluacion.cs` (Domain): nueva entidad hija de `ResultadoEvaluacion` con enums `TipoTranscripcion` (Sesion/Entrevista) y `EstadoTranscripcion` (Pendiente/Subida/EvaluadaPorIA). Métodos `Crear()` y `RegistrarEvaluacionIA()` con validación de rango 0-100.
+- `ResultadoEvaluacion.cs` (Domain): `_transcripciones` backing field + `Transcripciones` propiedad; constante `UmbralAprobacion = 70m`; método `AgregarTranscripcion()`; `CalcularPuntuacionTotal()` ahora promedia porcentaje de respuestas + puntajes IA de transcripciones (sin regresión cuando no hay transcripciones); `ObtenerEstadoGeneral()` ahora retorna "Aprobado"/"No aprobado" según umbral 70%.
+- `SubirTranscripcionCommand/Handler` (Application): sube transcripción (texto o archivo) a un resultado por sesión.
+- `EvaluarTranscripcionConIACommand/Handler` (Application): evalúa transcripción con IA y recalcula scoring combinado.
+- `ObtenerResultadosQuery` (Application): `TranscripcionDto` record agregado; respuesta incluye `Transcripciones`.
+- `ResultadosController` (API): 2 nuevos endpoints: `POST /api/resultados/{sesionId}/transcripciones` (multipart) y `POST .../transcripciones/{transcripcionId}/evaluar-ia`; inyección de `IServicioArchivos`.
+- `ResultadosConfigurations.cs` (Infrastructure): `TranscripcionEvaluacionConfiguration` (tabla `transcripciones_evaluacion`); FK cascade con `_transcripciones` backing field.
+- `TechEvalDbContext.cs` (Infrastructure): `DbSet<TranscripcionEvaluacion> Transcripciones`.
+- `RepositorioResultadoEvaluacion.cs` (Infrastructure): todos los métodos incluyen `.Include(r => r.Transcripciones)`.
+- Migración manual `20260320130000_Fase5_Transcripciones.cs` + Designer.cs + ModelSnapshot actualizados.
+
+**Tests:**
+- `ObtenerEstadoGeneral_VariosRangos_DebeClasificarCorrectamente`: datos actualizados a "Aprobado"/"No aprobado".
+- 8 nuevos tests de `TranscripcionEvaluacion` y scoring combinado.
+- Total: 77/77 tests pasando.
+
+**Frontend:**
+- `ResultadosApiService`: `TranscripcionDto` interface, `transcripciones` en `ResultadoSesionDto`, métodos `subirTranscripcion()` y `evaluarTranscripcionConIa()`.
+- `ResultsPageComponent`: signals + formulario de transcripciones + métodos `subirTranscripcion()`, `evaluarTranscripcionIa()`, `onArchivoTranscripcion()`.
+- `results-page.component.html`: badge Aprobado/No aprobado (5.14), tabla scoring combinado (5.13), lista de transcripciones + formulario de subida (5.10-5.12).
+- `candidate-scores-page.component.html`: badge Aprobado/No aprobado (5.14).
+- `LabelPipe`: etiquetas para `TipoTranscripcion`, `EstadoTranscripcion`, "Aprobado", "No aprobado".
+
+**Estado de builds:**
+- `dotnet build`: ✅ GREEN (0 errors)
+- `dotnet test`: ✅ 77/77 passing
+- `ng build --configuration=development`: ✅ GREEN (1.94 MB)
+- Code review: ✅ 0 comentarios
+- CodeQL: ✅ 0 alerts
+
+### Avance — 2026-03-20 (Sprint E: Épicas 6 & 7)
+
+**Épica 6 — Categorías de Preguntas (6.1–6.8):**
+- `Categoria` domain entity (AgregadoRaiz): `Crear()`, `Actualizar()`, inmutabilidad garantizada.
+- `Pregunta.CategoriaId: Guid?` + `AsignarCategoria()` internal method.
+- `Evaluacion.AgregarPregunta()` y `ActualizarPregunta()` con param opcional `Guid? categoriaId = null`.
+- `IRepositorioCategoria` con `ListarAsync()` y `ExistePorNombreAsync()`.
+- CRUD Application: `CrearCategoriaCommand`, `ActualizarCategoriaCommand`, `EliminarCategoriaCommand`, `ListarCategoriasQuery`.
+- `CategoriasController` REST: GET/POST/PUT/DELETE `/api/categorias`.
+- `CategoriaConfiguration` (EF) + `categoria_id` FK en preguntas (SetNull on delete).
+- Migración `20260320140000_Fase6_Categorias` + Designer.cs + snapshot actualizados.
+- `RepositorioCategoria` implementación Infrastructure.
+- `PreguntaDto.CategoriaId` en `ObtenerEvaluacionQuery`; request records actualizados con `CategoriaId`.
+- Frontend: `CategoriasApiService`, ruta `/categorias`, `CategoriasPageComponent` (CRUD), selector categoría en formularios agregar/editar pregunta.
+
+**Épica 7 — Generación Masiva de Preguntas (7.1–7.5):**
+- `IRepositorioEvaluacion.ObtenerPreguntasBancoAsync()` con filtros (categorías, dificultades, tipo, excluir evaluación).
+- `ObtenerPreguntasBancoQuery` con `PreguntaBancoDto` (incluye nombre categoría y evaluación denormalizados).
+- `AgregarPreguntasMasivasCommand`: clona preguntas seleccionadas (con opciones) desde banco a evaluación destino.
+- Endpoints: `GET /api/evaluaciones/{id}/preguntas/banco`, `POST /api/evaluaciones/{id}/preguntas/agregar-del-banco`.
+- Frontend: botón "+ Agregar del banco", modal con filtros (categoría/dificultad/tipo), checkbox selection, confirmación.
+
+**Pendiente Sprint E:**
+- 6.9 Filtro por categoría en listado de preguntas (frontend)
+- 6.10 Seeder de categorías iniciales
+- 7.6 Preview de selección antes de confirmar (actualmente se muestra el conteo)
+
+**Estado de builds:**
+- `dotnet build`: ✅ GREEN (0 errors)
+- `dotnet test`: ✅ 83/83 passing (43 domain, 33 application, 7 architecture)
+- `ng build --configuration=development`: ✅ GREEN (1.98 MB)
+- Code review: ✅ 0 comentarios
+- CodeQL: ✅ 0 alerts

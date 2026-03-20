@@ -73,6 +73,17 @@ export interface ResultadoSesionDto {
   readonly tiempoTotalSegundos: number;
   readonly estadoRevision: string;
   readonly puntuaciones: ReadonlyArray<ResultadoPuntuacionDto>;
+  readonly transcripciones: ReadonlyArray<TranscripcionDto>;
+}
+
+export interface TranscripcionDto {
+  readonly id: string;
+  readonly tipo: string;
+  readonly contenido: string | null;
+  readonly urlArchivo: string | null;
+  readonly puntajeIA: number | null;
+  readonly justificacionIA: string | null;
+  readonly estado: string;
 }
 
 export interface CompletarRevisionResponse {
@@ -129,6 +140,24 @@ export class ResultadosApiService {
     return this.http.post<CompletarRevisionResponse>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.resultados}/${sesionId}/completar-revision`,
       {}
+    );
+  }
+
+  subirTranscripcion(sesionId: string, tipo: string, contenido: string | null, archivo: File | null) {
+    const formData = new FormData();
+    formData.append('tipo', tipo);
+    if (contenido) formData.append('contenido', contenido);
+    if (archivo) formData.append('archivo', archivo, archivo.name);
+    return this.http.post<{ transcripcionId: string; estado: string; tipo: string }>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.resultados}/${sesionId}/transcripciones`,
+      formData
+    );
+  }
+
+  evaluarTranscripcionConIa(sesionId: string, transcripcionId: string, contextoEvaluador: string) {
+    return this.http.post<{ transcripcionId: string; puntajeIA: number; justificacion: string; nuevoPorcentajeObtenido: number }>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.resultados}/${sesionId}/transcripciones/${transcripcionId}/evaluar-ia`,
+      { contextoEvaluador }
     );
   }
 }

@@ -368,27 +368,61 @@ Implementar comparacion de candidatos, ranking, paginacion, filtros y mejoras de
 - [ ] Empty states con ícono descriptivo
 
 ### Backlog Frontend — Sprint C (Tab Lock + Grabación)
-- [ ] Tab Lock: interceptar `visibilitychange` + `blur`, modal de advertencia, bloquear `beforeunload`
-- [ ] Grabación de pantalla/pestaña con `MediaRecorder` + `getDisplayMedia()`
-- [ ] Grabación de audio con `getUserMedia({ audio: true })`
-- [ ] Subir grabaciones al completar sesión
-- [ ] UI: indicadores de grabación activa durante quiz
+- [x] Tab Lock: interceptar `visibilitychange` + `blur`, modal de advertencia, bloquear `beforeunload`
+- [x] Grabación de pantalla/pestaña con `MediaRecorder` + `getDisplayMedia()`
+- [x] Grabación de audio con `getUserMedia({ audio: true })`
+- [x] Subir grabaciones al completar sesión
+- [x] UI: indicadores de grabación activa durante quiz
+
+> **Registro de avance 2026-03-20**: Sprint C completado. Tab Lock mejorado con `blur` listener, `beforeunload`, modal de violación con contador y señales reactivas. Screen recording via `getDisplayMedia` y audio via `getUserMedia`, ambos con manejo graceful de permisos denegados. Indicadores REC/AUDIO animados en header. Archivos subidos via `subirGrabacion` y `subirAudio` en `SesionesApiService`. Backend: endpoints `/grabacion` y `/audio`, dominio con `UrlGrabacionSesion`, `UrlGrabacionAudio`, `MaxViolacionesPestana`, auto-cancelación por exceso de violaciones (`EstadoSesion.Cancelada`). Migración `20260320120000_Fase4_GrabacionSesion` creada. `AgregarAdjunto` endpoint arreglado para usar `IServicioArchivos` real.
 
 ### Backlog Frontend — Sprint D (Transcripciones + Scoring)
-- [ ] UI: subir transcripción de entrevista (evaluador)
-- [ ] UI: estado de transcripción de sesión (auto-generada)
-- [ ] UI: botón "Evaluar transcripción con IA"
-- [ ] UI: tabla scoring combinado (Sesión + Trans. Sesión + Trans. Entrevista = Total %)
-- [ ] UI: badge "Aprobado" / "No aprobado" (umbral 70%)
+- [x] UI: subir transcripción de entrevista (evaluador)
+- [x] UI: estado de transcripción de sesión (auto-generada)
+- [x] UI: botón "Evaluar transcripción con IA"
+- [x] UI: tabla scoring combinado (Sesión + Trans. Sesión + Trans. Entrevista = Total %)
+- [x] UI: badge "Aprobado" / "No aprobado" (umbral 70%)
 
 ### Backlog Frontend — Sprint E (Categorías + Banco de Preguntas)
-- [ ] Página de gestión de categorías (CRUD)
-- [ ] Selector de categoría al crear/editar pregunta
+- [x] Página de gestión de categorías (CRUD)
+- [x] Selector de categoría al crear/editar pregunta
 - [ ] Filtro por categoría en listado de preguntas
-- [ ] Modal "Agregar del banco": filtros (categoría, dificultad, tipo) + cantidad
+- [x] Modal "Agregar del banco": filtros (categoría, dificultad, tipo) + selección con checkbox
 - [ ] Preview de preguntas seleccionadas antes de confirmar
 
 ### Backlog Frontend — Sprint F (Evaluaciones Dinámicas)
-- [ ] UI: configuración modo selección (Fijas / Aleatorias por categoría / Por dificultad)
-- [ ] UI: configuración distribución de dificultad (Fácil: N, Medio: N, Difícil: N)
-- [ ] UI: cantidad de preguntas por sesión
+- [x] UI: configuración modo selección (Fijas / Aleatorias por categoría / Por dificultad)
+- [x] UI: configuración distribución de dificultad (Fácil: N, Medio: N, Difícil: N)
+- [x] UI: cantidad de preguntas por sesión
+
+### Registro de avance (2026-03-20 — Sprint D: Transcripciones y Scoring Combinado)
+- `ResultadosApiService`: `TranscripcionDto` interface agregada; `ResultadoSesionDto` actualizado con campo `transcripciones: ReadonlyArray<TranscripcionDto>`; métodos `subirTranscripcion()` (FormData multipart) y `evaluarTranscripcionConIa()` (JSON).
+- `ResultsPageComponent`: signals `subiendoTranscripcion`, `transcripcionMsg`, `archivoTranscripcion`; `transcripcionForm` (ReactiveForm con tipo/contenido); métodos `subirTranscripcion()`, `evaluarTranscripcionIa()`, `onArchivoTranscripcion()`.
+- `results-page.component.html`: badge "Aprobado"/"No aprobado" con umbral 70% (Task 5.14); tabla "Scoring combinado" con filas por componente (respuestas + transcripciones) y botón Evaluar IA (Task 5.13); sección de lista de transcripciones con estado/puntaje/justificación IA + formulario de subida con selector tipo, textarea, file input (Tasks 5.10-5.12).
+- `candidate-scores-page.component.html`: badge "Aprobado"/"No aprobado" para candidatos (Task 5.14).
+- `LabelPipe`: etiquetas `Aprobado`, `No aprobado`, `Subida`, `EvaluadaPorIA`, `Sesion`, `Entrevista` agregadas.
+- Validación: `ng build --configuration=development` ✅ verde (1.94 MB).
+
+### Registro de avance (2026-03-20 — Sprint E: Categorías de Preguntas + Generación Masiva)
+- `api-config.ts`: endpoint `categorias: '/api/categorias'` agregado.
+- `categorias-api.service.ts`: creado con `listar()`, `crear()`, `actualizar()`, `eliminar()`.
+- `evaluaciones.models.ts`: `PreguntaDto.categoriaId` agregado; `CrearPreguntaRequest.categoriaId` y `ActualizarPreguntaRequest.categoriaId` agregados; nueva interface `PreguntaBancoDto`.
+- `evaluaciones-api.service.ts`: importado `PreguntaBancoDto`; métodos `obtenerPreguntasBanco()` y `agregarDelBanco()` agregados.
+- `icons.ts`: icono `tag` agregado (SVG Heroicons).
+- `app-shell.component.ts`: nav item "Categorías" (ruta `/categorias`, icono `tag`) agregado entre Formularios y Sesiones.
+- `app.routes.ts`: ruta `/categorias` (CategoriasPageComponent, roleGuard: Evaluador/Administrador).
+- `CategoriasPageComponent`: página CRUD de categorías (two-column: formulario + lista con editar/borrar).
+- `form-detail-page.component.ts`: `CategoriasApiService` inyectado; signals `categorias`, `mostrarBanco`, `bancoCargando`, `bancoPreguntas`, `bancoSeleccionadas`, `agregandoDelBanco`, filtros banco; métodos `abrirBanco()`, `cargarBanco()`, `toggleSeleccionBanco()`, `confirmarBanco()`; `categoriaId` en `preguntaForm` y `editPreguntaForm`; `ngOnInit` carga categorías; `crearPregunta`/`actualizarPregunta` pasan `categoriaId`.
+- `form-detail-page.component.html`: select de categoría en formulario agregar-pregunta y editar-pregunta; botón "+ Agregar del banco"; modal con filtros (categoría, dificultad, tipo), lista con checkbox, confirmación.
+- Backend: `Categoria` domain entity, `IRepositorioCategoria`, CRUD commands/queries, `CategoriasController`, `ObtenerPreguntasBancoAsync`, `AgregarPreguntasMasivasCommand`, `ObtenerPreguntasBancoQuery`, migration `20260320140000_Fase6_Categorias`, `RepositorioCategoria`.
+- Tests: 5 nuevos tests de dominio en `CategoriaTests.cs` (83 total, todos verdes).
+- Validación: `dotnet build` ✅ 0 errores; `dotnet test` ✅ 83 tests; `ng build` ✅ 1.98 MB.
+
+### Registro de avance (2026-03-20 — Sprint F: Evaluaciones Dinámicas — Épica 8)
+- `evaluaciones.models.ts`: tipo `ModoSeleccionPreguntas` ('Fijas' | 'Aleatorias' | 'PorDistribucionDificultad'); `EvaluacionResumenDto` +`modoSeleccionPreguntas`; `EvaluacionDetalleDto` +`modoSeleccionPreguntas`, +`cantidadPreguntasSesion`, +`distribucionFacil/Medio/Dificil`; `ActualizarEvaluacionRequest` +5 nuevos campos.
+- `label.pipe.ts`: etiquetas `Fijas`, `Aleatorias`, `PorDistribucionDificultad` agregadas.
+- `form-detail-page.component.ts`: `ModoSeleccionPreguntas` importado; signals `modosSeleccion`, `modoLabels`; `editEvaluacionForm` +5 nuevos controles (`modoSeleccionPreguntas`, `cantidadPreguntasSesion`, `distribucionFacil/Medio/Dificil`); `cargar()` pobla nuevos campos; `guardarEvaluacion()` envía nuevos campos al API.
+- `form-detail-page.component.html`: select "Modo de selección de preguntas" + input condicional para `Aleatorias` + grid 3 columnas condicional para `PorDistribucionDificultad`.
+- Backend: `ModoSeleccionPreguntas` enum, `DistribucionDificultad` record, `Evaluacion.ConfigurarSeleccionDinamica()`, 2 nuevos `ErrorDominio`; `CrearSesionCommandHandler` +`SeleccionarAleatorias()`/`SeleccionarPorDistribucion()`; `ActualizarEvaluacionCommand/Handler` +5 nuevos params; `ObtenerEvaluacionQuery.EvaluacionDto`/`ListarEvaluacionesQuery.EvaluacionResumenDto` +nuevos campos; `EvaluacionesController.ActualizarEvaluacionRequest` +5 campos; `EvaluacionConfiguration` +`OwnsOne(DistribucionDificultad)` + `ModoSeleccionPreguntas` + `CantidadPreguntasSesion`; migración `20260320150000_Fase8_EvaluacionDinamica` (`.cs` + `.Designer.cs`); snapshot actualizado.
+- Tests: 8 nuevos tests (5 en `EvaluacionTests.cs`, 3 en nuevo `DistribucionDificultadTests.cs`). 91 tests en total, todos verdes.
+- Validación: `dotnet build` ✅ 0 errores; `dotnet test` ✅ 91 tests; `ng build` ✅ 1.99 MB.

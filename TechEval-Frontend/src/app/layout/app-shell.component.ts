@@ -7,6 +7,7 @@ import { ThemeService } from '../core/ui/theme.service';
 import { ProblemBannerComponent } from '../shared/problem-banner/problem-banner.component';
 import { ICONS } from '../shared/icons/icons';
 import { SafeHtmlPipe } from '../shared/pipes/safe-html.pipe';
+import { ToastComponent } from '../shared/toast/toast.component';
 
 interface NavItem {
   readonly label: string;
@@ -16,7 +17,7 @@ interface NavItem {
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, ProblemBannerComponent, SafeHtmlPipe],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, ProblemBannerComponent, SafeHtmlPipe, ToastComponent],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +43,7 @@ export class AppShellComponent {
     { label: 'Iniciar cuestionario', route: '/candidato/acceso', icon: ICONS.play },
     { label: 'Mis puntajes', route: '/mis-puntajes', icon: ICONS.star },
     { label: 'Formularios y preguntas', route: '/formularios', icon: ICONS.document },
+    { label: 'Categorías', route: '/categorias', icon: ICONS.tag },
     { label: 'Sesiones en vivo', route: '/sesiones', icon: ICONS.play },
     { label: 'Resultados y revisión', route: '/resultados', icon: ICONS.clipboard },
     { label: 'Comparar candidatos', route: '/comparar', icon: ICONS.chart },

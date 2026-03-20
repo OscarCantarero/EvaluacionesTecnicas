@@ -17,6 +17,7 @@ public sealed class RepositorioResultadoEvaluacion : IRepositorioResultadoEvalua
     {
         return await _context.Resultados
             .Include(r => r.Puntuaciones)
+            .Include(r => r.Transcripciones)
             .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
     }
 
@@ -42,6 +43,7 @@ public sealed class RepositorioResultadoEvaluacion : IRepositorioResultadoEvalua
     {
         return await _context.Resultados
             .Include(r => r.Puntuaciones)
+            .Include(r => r.Transcripciones)
             .FirstOrDefaultAsync(r => r.SesionId == sesionId, cancellationToken);
     }
 
@@ -49,6 +51,7 @@ public sealed class RepositorioResultadoEvaluacion : IRepositorioResultadoEvalua
     {
         return await _context.Resultados
             .Include(r => r.Puntuaciones)
+            .Include(r => r.Transcripciones)
             .Where(r => r.CandidatoId == candidatoId)
             .OrderByDescending(r => r.FechaCompletacion)
             .ToListAsync(cancellationToken);
@@ -58,6 +61,7 @@ public sealed class RepositorioResultadoEvaluacion : IRepositorioResultadoEvalua
     {
         return await _context.Resultados
             .Include(r => r.Puntuaciones)
+            .Include(r => r.Transcripciones)
             .Where(r => r.EvaluacionId == evaluacionId)
             .OrderByDescending(r => r.FechaCompletacion)
             .ToListAsync(cancellationToken);
@@ -67,6 +71,7 @@ public sealed class RepositorioResultadoEvaluacion : IRepositorioResultadoEvalua
     {
         return await _context.Resultados
             .Include(r => r.Puntuaciones)
+            .Include(r => r.Transcripciones)
             .OrderByDescending(r => r.FechaCompletacion)
             .ToListAsync(cancellationToken);
     }

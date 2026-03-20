@@ -7,6 +7,8 @@ using TechEval.Application.Evaluaciones.Commands.ActualizarOpcion;
 using TechEval.Application.Evaluaciones.Commands.ActualizarPregunta;
 using TechEval.Application.Evaluaciones.Commands.EliminarOpcion;
 using TechEval.Application.Evaluaciones.Commands.EliminarPregunta;
+using TechEval.Application.Evaluaciones.Commands.AgregarPreguntasMasivas;
+using TechEval.Application.Evaluaciones.Queries.ObtenerPreguntasBanco;
 using TechEval.Domain.Common.ValueObjects;
 
 namespace TechEval.API.Controllers;
@@ -24,7 +26,7 @@ public sealed class PreguntasController(ISender sender) : ControllerBase
     {
         var id = await sender.Send(new AgregarPreguntaCommand(
             evaluacionId, request.Texto, request.TipoPregunta, request.NivelDificultad,
-            request.LimiteTiempoSegundos, request.PermiteAdjunto, request.EsRevisionManual),
+            request.LimiteTiempoSegundos, request.PermiteAdjunto, request.EsRevisionManual, request.CategoriaId),
             cancellationToken);
         return Created($"api/preguntas/{id}", new { Id = id });
     }
@@ -38,7 +40,7 @@ public sealed class PreguntasController(ISender sender) : ControllerBase
     {
         await sender.Send(new ActualizarPreguntaCommand(
             evaluacionId, preguntaId, request.Texto, request.TipoPregunta, request.NivelDificultad,
-            request.LimiteTiempoSegundos, request.PermiteAdjunto, request.EsRevisionManual),
+            request.LimiteTiempoSegundos, request.PermiteAdjunto, request.EsRevisionManual, request.CategoriaId),
             cancellationToken);
         return NoContent();
     }
@@ -88,16 +90,51 @@ public sealed class PreguntasController(ISender sender) : ControllerBase
         await sender.Send(new EliminarOpcionCommand(evaluacionId, preguntaId, opcionId), cancellationToken);
         return NoContent();
     }
+
+    /// <summary>Obtiene preguntas del banco con filtros (para seleccionar masivamente).</summary>
+    [HttpGet("api/evaluaciones/{evaluacionId:guid}/preguntas/banco")]
+    public async Task<IActionResult> ObtenerPreguntasBanco(
+        Guid evaluacionId,
+        [FromQuery] string? categoriaIds = null,
+        [FromQuery] string? dificultades = null,
+        [FromQuery] string? tipoPregunta = null,
+        CancellationToken cancellationToken = default)
+    {
+        var catIds = string.IsNullOrEmpty(categoriaIds) ? null :
+            categoriaIds.Split(',').Select(Guid.Parse).ToList();
+        var difs = string.IsNullOrEmpty(dificultades) ? null :
+            dificultades.Split(',').ToList();
+
+        var query = new ObtenerPreguntasBancoQuery(catIds, difs, tipoPregunta, evaluacionId);
+        var resultado = await sender.Send(query, cancellationToken);
+        return Ok(resultado);
+    }
+
+    /// <summary>Agrega preguntas del banco (clonadas) a una evaluación.</summary>
+    [HttpPost("api/evaluaciones/{evaluacionId:guid}/preguntas/agregar-del-banco")]
+    public async Task<IActionResult> AgregarDelBanco(
+        Guid evaluacionId,
+        [FromBody] AgregarDelBancoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new AgregarPreguntasMasivasCommand(evaluacionId, request.PreguntaIds);
+        var resultado = await sender.Send(command, cancellationToken);
+        return Ok(resultado);
+    }
 }
 
 public sealed record AgregarPreguntaRequest(
     string Texto, TipoPregunta TipoPregunta, NivelDificultad NivelDificultad,
-    int? LimiteTiempoSegundos, bool PermiteAdjunto, bool EsRevisionManual);
+    int? LimiteTiempoSegundos, bool PermiteAdjunto, bool EsRevisionManual,
+    Guid? CategoriaId = null);
 
 public sealed record ActualizarPreguntaRequest(
     string Texto, TipoPregunta TipoPregunta, NivelDificultad NivelDificultad,
-    int? LimiteTiempoSegundos, bool PermiteAdjunto, bool EsRevisionManual);
+    int? LimiteTiempoSegundos, bool PermiteAdjunto, bool EsRevisionManual,
+    Guid? CategoriaId = null);
 
 public sealed record AgregarOpcionRequest(string Texto, int? Puntuacion, bool EsRevisionManual);
 
 public sealed record ActualizarOpcionRequest(string Texto, int? Puntuacion, bool EsRevisionManual);
+
+public sealed record AgregarDelBancoRequest(List<Guid> PreguntaIds);

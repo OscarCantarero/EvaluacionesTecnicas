@@ -16,7 +16,8 @@ import {
   CrearPreguntaResponse,
   EvaluacionDetalleDto,
   EvaluacionResumenDto,
-  ObtenerRankingResponse
+  ObtenerRankingResponse,
+  PreguntaBancoDto
 } from './evaluaciones.models';
 
 @Injectable({ providedIn: 'root' })
@@ -45,6 +46,10 @@ export class EvaluacionesApiService {
 
   actualizarEvaluacion(evaluacionId: string, payload: ActualizarEvaluacionRequest) {
     return this.http.put<void>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.evaluaciones}/${evaluacionId}`, payload);
+  }
+
+  activarEvaluacion(evaluacionId: string) {
+    return this.http.put<void>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.evaluaciones}/${evaluacionId}/activar`, {});
   }
 
   eliminarEvaluacion(evaluacionId: string) {
@@ -101,6 +106,24 @@ export class EvaluacionesApiService {
   obtenerRanking(evaluacionId: string) {
     return this.http.get<ObtenerRankingResponse>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.evaluaciones}/${evaluacionId}/ranking`
+    );
+  }
+
+  obtenerPreguntasBanco(evaluacionId: string, categoriaIds?: string, dificultades?: string, tipoPregunta?: string) {
+    let params = new HttpParams();
+    if (categoriaIds) params = params.set('categoriaIds', categoriaIds);
+    if (dificultades) params = params.set('dificultades', dificultades);
+    if (tipoPregunta) params = params.set('tipoPregunta', tipoPregunta);
+    return this.http.get<PreguntaBancoDto[]>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.evaluaciones}/${evaluacionId}/preguntas/banco`,
+      { params }
+    );
+  }
+
+  agregarDelBanco(evaluacionId: string, preguntaIds: string[]) {
+    return this.http.post<{ preguntasAgregadas: number; nuevosIds: string[] }>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.evaluaciones}/${evaluacionId}/preguntas/agregar-del-banco`,
+      { preguntaIds }
     );
   }
 }

@@ -27,4 +27,12 @@ public static class ErroresEvaluacion
 
     public static readonly ErrorDominio LimiteTiempoInvalido = new(
         "Evaluacion.LimiteTiempoInvalido", "El límite de tiempo debe ser mayor a cero.");
+
+    public static readonly ErrorDominio CantidadPreguntasInvalida = new(
+        "Evaluacion.CantidadPreguntasInvalida",
+        "La cantidad de preguntas por sesión debe ser mayor que 0.");
+
+    public static readonly ErrorDominio DistribucionRequerida = new(
+        "Evaluacion.DistribucionRequerida",
+        "Se requiere una distribución de dificultad cuando el modo es PorDistribucionDificultad.");
 }

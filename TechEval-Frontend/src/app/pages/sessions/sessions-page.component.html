@@ -211,8 +211,17 @@
             <div>
               <p><strong>{{ sesion.evaluacionTitulo }}</strong></p>
               <small class="text-base-content/70">
-                <span class="badge badge-sm badge-outline mr-1">{{ sesion.estado | label }}</span>
+                <span
+                  class="badge badge-sm mr-1"
+                  [class.badge-success]="sesion.estado === 'Completada'"
+                  [class.badge-warning]="sesion.estado === 'EnProgreso'"
+                  [class.badge-info]="sesion.estado === 'NoIniciada'"
+                  [class.badge-error]="sesion.estado === 'Cancelada'"
+                >{{ sesion.estado | label }}</span>
                 · {{ sesion.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}
+                @if (sesion.puntuacionObtenida !== null) {
+                  · <span class="font-semibold text-primary">{{ sesion.puntuacionObtenida }} pts</span>
+                }
               </small>
             </div>
             <button type="button" class="ui-btn-ghost" (click)="verResultado(sesion.sesionId)">

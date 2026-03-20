@@ -32,6 +32,30 @@ public sealed class RepositorioEvaluacion(TechEvalDbContext context) : IReposito
             e => e.Nombre == nombre && (excluirId == null || e.Id != excluirId),
             cancellationToken);
 
+    public async Task<List<Pregunta>> ObtenerPreguntasBancoAsync(
+        List<Guid>? categoriaIds,
+        List<string>? dificultades,
+        string? tipoPregunta,
+        Guid? excluirEvaluacionId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.Preguntas.Include(p => p.Opciones).AsQueryable();
+
+        if (excluirEvaluacionId.HasValue)
+            query = query.Where(p => p.EvaluacionId != excluirEvaluacionId.Value);
+
+        if (categoriaIds != null && categoriaIds.Count > 0)
+            query = query.Where(p => p.CategoriaId.HasValue && categoriaIds.Contains(p.CategoriaId.Value));
+
+        if (dificultades != null && dificultades.Count > 0)
+            query = query.Where(p => dificultades.Contains(p.NivelDificultad.ToString()));
+
+        if (!string.IsNullOrEmpty(tipoPregunta))
+            query = query.Where(p => p.TipoPregunta.ToString() == tipoPregunta);
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
     public async Task AgregarAsync(Evaluacion agregado, CancellationToken cancellationToken = default)
     {
         await context.Evaluaciones.AddAsync(agregado, cancellationToken);

@@ -4,8 +4,11 @@ using TechEval.Application.Common.Interfaces;
 using TechEval.Application.Resultados.Commands.AsignarPuntuacion;
 using TechEval.Application.Resultados.Commands.CompletarRevision;
 using TechEval.Application.Resultados.Commands.EvaluarConIA;
+using TechEval.Application.Resultados.Commands.EvaluarTranscripcionConIA;
 using TechEval.Application.Resultados.Commands.GenerarPDF;
+using TechEval.Application.Resultados.Commands.SubirTranscripcion;
 using TechEval.Application.Resultados.Queries.ObtenerResultados;
+using TechEval.Domain.Resultados;
 using MediatR;
 
 namespace TechEval.API.Controllers;
@@ -25,10 +28,12 @@ namespace TechEval.API.Controllers;
 public sealed class ResultadosController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IServicioArchivos _servicioArchivos;
 
-    public ResultadosController(IMediator mediator)
+    public ResultadosController(IMediator mediator, IServicioArchivos servicioArchivos)
     {
         _mediator = mediator;
+        _servicioArchivos = servicioArchivos;
     }
 
     /// <summary>
@@ -165,6 +170,60 @@ public sealed class ResultadosController : ControllerBase
 
         return Ok(resultado);
     }
+
+    /// <summary>
+    /// Sube una transcripción (texto o archivo) para una sesión.
+    /// </summary>
+    /// <param name="sesionId">ID de la sesión</param>
+    /// <param name="request">Datos de la transcripción</param>
+    [HttpPost("{sesionId:guid}/transcripciones")]
+    [Authorize(Roles = "Evaluador,Administrador")]
+    [Consumes("multipart/form-data")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SubirTranscripcion(Guid sesionId, [FromForm] SubirTranscripcionRequest request)
+    {
+        string? urlArchivo = null;
+        if (request.Archivo != null && request.Archivo.Length > 0)
+        {
+            var ruta = await _servicioArchivos.GuardarAsync(
+                request.Archivo.OpenReadStream(),
+                request.Archivo.FileName,
+                $"transcripciones/{sesionId}",
+                cancellationToken: HttpContext.RequestAborted);
+            urlArchivo = _servicioArchivos.ObtenerUrlPublica(ruta);
+        }
+
+        if (!Enum.TryParse<TipoTranscripcion>(request.Tipo, ignoreCase: true, out var tipo))
+            return BadRequest($"Tipo de transcripción inválido: '{request.Tipo}'. Valores válidos: Sesion, Entrevista.");
+
+        var command = new SubirTranscripcionCommand(sesionId, tipo, request.Contenido, urlArchivo);
+        var resultado = await _mediator.Send(command);
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Evalúa una transcripción específica con IA y actualiza el scoring combinado.
+    /// </summary>
+    /// <param name="sesionId">ID de la sesión</param>
+    /// <param name="transcripcionId">ID de la transcripción</param>
+    /// <param name="request">Contexto para la evaluación IA</param>
+    [HttpPost("{sesionId:guid}/transcripciones/{transcripcionId:guid}/evaluar-ia")]
+    [Authorize(Roles = "Evaluador,Administrador")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> EvaluarTranscripcionConIA(
+        Guid sesionId,
+        Guid transcripcionId,
+        [FromBody] EvaluarTranscripcionConIARequest request)
+    {
+        var command = new EvaluarTranscripcionConIACommand(sesionId, transcripcionId, request.ContextoEvaluador);
+        var resultado = await _mediator.Send(command);
+        return Ok(resultado);
+    }
 }
 
 public sealed record AsignarPuntuacionRequest(
@@ -185,4 +244,14 @@ public sealed record DecisionIARequest(
     decimal? PuntajeAceptado = null,
     decimal? PuntajeManualAlternativo = null,
     string? MotivoRechazo = null
+);
+
+public sealed record SubirTranscripcionRequest(
+    string Tipo,
+    string? Contenido = null,
+    IFormFile? Archivo = null
+);
+
+public sealed record EvaluarTranscripcionConIARequest(
+    string ContextoEvaluador
 );

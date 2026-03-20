@@ -5,7 +5,30 @@
   </button>
   @if (evaluacion(); as ev) {
     <div class="ev-info">
-      <p class="ui-kicker">{{ ev.estado | label }}</p>
+      <div class="flex items-center gap-2 flex-wrap">
+        <p class="ui-kicker">{{ ev.estado | label }}</p>
+        <span
+          class="badge badge-sm"
+          [class.badge-warning]="ev.estado === 'Borrador'"
+          [class.badge-success]="ev.estado === 'Activa'"
+          [class.badge-ghost]="ev.estado !== 'Borrador' && ev.estado !== 'Activa'"
+        >{{ ev.estado | label }}</span>
+        @if (ev.estado === 'Borrador') {
+          <button
+            type="button"
+            class="ui-btn-primary btn-sm gap-1"
+            [disabled]="activando()"
+            (click)="activarEvaluacion()"
+          >
+            @if (activando()) {
+              <span class="loading loading-spinner loading-xs"></span> Activando...
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-8.707l-3-3a1 1 0 0 0-1.414 1.414L10.586 9H7a1 1 0 1 0 0 2h3.586l-1.293 1.293a1 1 0 1 0 1.414 1.414l3-3a1 1 0 0 0 0-1.414z" clip-rule="evenodd"/></svg>
+              Activar evaluación
+            }
+          </button>
+        }
+      </div>
       <h2 class="ui-section-title">{{ ev.nombre }}</h2>
       @if (ev.descripcion) {
         <p class="ui-lead mt-1">{{ ev.descripcion }}</p>
@@ -54,6 +77,40 @@
             <span>Orden por dificultad</span>
           </label>
         </div>
+
+        <!-- Modo de selección de preguntas (Épica 8) -->
+        <div class="mt-4">
+          <label class="label"><span class="ui-label">Modo de selección de preguntas</span></label>
+          <select class="select select-bordered w-full" formControlName="modoSeleccionPreguntas">
+            <option value="Fijas">Fijas (todas las preguntas)</option>
+            <option value="Aleatorias">Aleatorias (N al azar)</option>
+            <option value="PorDistribucionDificultad">Por distribución de dificultad</option>
+          </select>
+        </div>
+
+        @if (editEvaluacionForm.controls.modoSeleccionPreguntas.value === 'Aleatorias') {
+          <div class="mt-2">
+            <label class="label"><span class="ui-label text-sm">Cantidad de preguntas por sesión *</span></label>
+            <input type="number" class="input input-bordered w-full input-sm" formControlName="cantidadPreguntasSesion" min="1" placeholder="ej: 10" />
+          </div>
+        }
+
+        @if (editEvaluacionForm.controls.modoSeleccionPreguntas.value === 'PorDistribucionDificultad') {
+          <div class="mt-2 grid grid-cols-3 gap-2">
+            <div>
+              <label class="label"><span class="label-text text-xs">Fáciles</span></label>
+              <input type="number" class="input input-bordered w-full input-sm" formControlName="distribucionFacil" min="0" placeholder="0" />
+            </div>
+            <div>
+              <label class="label"><span class="label-text text-xs">Medias</span></label>
+              <input type="number" class="input input-bordered w-full input-sm" formControlName="distribucionMedio" min="0" placeholder="0" />
+            </div>
+            <div>
+              <label class="label"><span class="label-text text-xs">Difíciles</span></label>
+              <input type="number" class="input input-bordered w-full input-sm" formControlName="distribucionDificil" min="0" placeholder="0" />
+            </div>
+          </div>
+        }
 
         <button class="ui-btn-secondary gap-1" type="submit" [disabled]="editEvaluacionForm.invalid || updatingEvaluacion()">
           @if (updatingEvaluacion()) { Guardando... } @else {
@@ -118,11 +175,27 @@
           </label>
         </div>
 
+        <div>
+          <label class="form-control w-full">
+            <span class="label"><span class="ui-label">Categoría</span></span>
+            <select class="ui-select" formControlName="categoriaId">
+              <option value="">Sin categoría</option>
+              @for (c of categorias(); track c.id) {
+                <option [value]="c.id">{{ c.nombre }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
         <button class="ui-btn-primary gap-1" type="submit" [disabled]="preguntaForm.invalid || creatingPregunta()">
           @if (creatingPregunta()) { Guardando... } @else {
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1z"/></svg>
             Agregar pregunta
           }
+        </button>
+
+        <button type="button" class="ui-btn-ghost mt-2" (click)="abrirBanco()">
+          + Agregar del banco de preguntas
         </button>
       </form>
       </div>
@@ -241,6 +314,18 @@
           <label class="label cursor-pointer justify-start gap-3">
             <input class="checkbox checkbox-primary" type="checkbox" formControlName="esRevisionManual" />
             <span>Revisión manual</span>
+          </label>
+        </div>
+
+        <div>
+          <label class="form-control w-full">
+            <span class="label"><span class="ui-label">Categoría</span></span>
+            <select class="ui-select" formControlName="categoriaId">
+              <option value="">Sin categoría</option>
+              @for (c of categorias(); track c.id) {
+                <option [value]="c.id">{{ c.nombre }}</option>
+              }
+            </select>
           </label>
         </div>
 
@@ -377,3 +462,87 @@
   </article>
 
 }
+
+<!-- Modal banco de preguntas -->
+@if (mostrarBanco()) {
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-base-100 rounded-box w-full max-w-3xl max-h-[90vh] flex flex-col shadow-xl">
+      <div class="p-4 border-b border-base-300 flex justify-between items-center">
+        <h3 class="font-semibold text-lg">Banco de preguntas</h3>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="mostrarBanco.set(false)">✕</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="p-4 border-b border-base-300 flex flex-wrap gap-2">
+        <select class="select select-bordered select-sm"
+          (change)="bancoCategoriaFiltro.set($any($event.target).value); cargarBanco()">
+          <option value="">Todas las categorías</option>
+          @for (c of categorias(); track c.id) {
+            <option [value]="c.id">{{ c.nombre }}</option>
+          }
+        </select>
+        <select class="select select-bordered select-sm"
+          (change)="bancoDificultadFiltro.set($any($event.target).value); cargarBanco()">
+          <option value="">Todas las dificultades</option>
+          <option value="Facil">Fácil</option>
+          <option value="Medio">Medio</option>
+          <option value="Dificil">Difícil</option>
+        </select>
+        <select class="select select-bordered select-sm"
+          (change)="bancoTipoFiltro.set($any($event.target).value); cargarBanco()">
+          <option value="">Todos los tipos</option>
+          <option value="TextoLibre">Texto libre</option>
+          <option value="SeleccionUnica">Selección única</option>
+          <option value="SeleccionMultiple">Selección múltiple</option>
+        </select>
+        <span class="text-sm text-base-content/60 self-center">
+          {{ bancoSeleccionadas().size }} seleccionadas
+        </span>
+      </div>
+
+      <!-- List -->
+      <div class="flex-1 overflow-y-auto p-4">
+        @if (bancoCargando()) {
+          <div class="flex items-center gap-2"><span class="loading loading-spinner loading-sm"></span> Cargando…</div>
+        } @else if (bancoPreguntas().length === 0) {
+          <p class="text-base-content/60 text-sm">No hay preguntas en el banco con esos filtros.</p>
+        } @else {
+          <ul class="space-y-2">
+            @for (p of bancoPreguntas(); track p.id) {
+              <li class="border border-base-300 rounded-box p-3 cursor-pointer"
+                [class.border-primary]="bancoSeleccionadas().has(p.id)"
+                [class.bg-primary/5]="bancoSeleccionadas().has(p.id)"
+                (click)="toggleSeleccionBanco(p.id)">
+                <div class="flex items-start gap-2">
+                  <input type="checkbox" class="checkbox checkbox-sm mt-0.5" [checked]="bancoSeleccionadas().has(p.id)" (click)="$event.stopPropagation()" (change)="toggleSeleccionBanco(p.id)" />
+                  <div class="flex-1">
+                    <p class="text-sm">{{ p.texto }}</p>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                      <span class="badge badge-xs badge-outline">{{ p.tipoPregunta }}</span>
+                      <span class="badge badge-xs badge-outline">{{ p.nivelDificultad }}</span>
+                      @if (p.nombreCategoria) {
+                        <span class="badge badge-xs badge-ghost">{{ p.nombreCategoria }}</span>
+                      }
+                      <span class="text-xs text-base-content/50">de: {{ p.textoEvaluacion }}</span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 border-t border-base-300 flex justify-end gap-2">
+        <button type="button" class="ui-btn-ghost" (click)="mostrarBanco.set(false)">Cancelar</button>
+        <button type="button" class="ui-btn-primary"
+          [disabled]="bancoSeleccionadas().size === 0 || agregandoDelBanco()"
+          (click)="confirmarBanco()">
+          @if (agregandoDelBanco()) { Agregando... } @else { Agregar {{ bancoSeleccionadas().size }} pregunta(s) }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

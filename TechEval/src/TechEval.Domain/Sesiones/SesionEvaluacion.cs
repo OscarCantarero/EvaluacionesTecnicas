@@ -19,6 +19,9 @@ public sealed class SesionEvaluacion : AgregadoRaiz
     public DateTime? IniciadaEn { get; private set; }
     public DateTime? CompletadaEn { get; private set; }
     public int ContadorViolacionesPestana { get; private set; }
+    public string? UrlGrabacionSesion { get; private set; }
+    public string? UrlGrabacionAudio { get; private set; }
+    public int MaxViolacionesPestana { get; private set; }  // 0 = sin límite
     public IReadOnlyCollection<PreguntaSesion> Preguntas => _preguntas.AsReadOnly();
 
     private SesionEvaluacion() { }
@@ -109,7 +112,8 @@ public sealed class SesionEvaluacion : AgregadoRaiz
     }
 
     /// <summary>
-    /// Registra una violación de pestaña (candidato cambió de ventana)
+    /// Registra una violación de pestaña (candidato cambió de ventana).
+    /// Si se supera el límite máximo de violaciones, cancela la sesión automáticamente.
     /// </summary>
     public void RegistrarViolacionPestana()
     {
@@ -119,6 +123,47 @@ public sealed class SesionEvaluacion : AgregadoRaiz
             DateTime.UtcNow,
             ContadorViolacionesPestana
         ));
+
+        if (MaxViolacionesPestana > 0 && ContadorViolacionesPestana >= MaxViolacionesPestana)
+        {
+            CancelarPorExcesoViolaciones();
+        }
+    }
+
+    /// <summary>
+    /// Cancela la sesión automáticamente por exceso de violaciones de pestaña.
+    /// </summary>
+    public void CancelarPorExcesoViolaciones()
+    {
+        if (Estado == EstadoSesion.Cancelada)
+            return;
+
+        Estado = EstadoSesion.Cancelada;
+        CompletadaEn = DateTime.UtcNow;
+
+        const int tiempoTotalCancelacion = 0;
+        RegistrarEvento(new SesionCompletadaEvent(
+            Id,
+            CompletadaEn.Value,
+            _preguntas.Count(p => p.FueRespondida),
+            tiempoTotalCancelacion
+        ));
+    }
+
+    /// <summary>
+    /// Guarda la URL de la grabación de pantalla de la sesión.
+    /// </summary>
+    public void GuardarGrabacionSesion(string url)
+    {
+        UrlGrabacionSesion = url;
+    }
+
+    /// <summary>
+    /// Guarda la URL de la grabación de audio de la sesión.
+    /// </summary>
+    public void GuardarGrabacionAudio(string url)
+    {
+        UrlGrabacionAudio = url;
     }
 
     /// <summary>

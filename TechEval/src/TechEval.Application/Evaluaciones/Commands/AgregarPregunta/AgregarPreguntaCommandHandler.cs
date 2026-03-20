@@ -18,7 +18,8 @@ public sealed class AgregarPreguntaCommandHandler(IRepositorioEvaluacion reposit
             command.NivelDificultad,
             command.LimiteTiempoSegundos,
             command.PermiteAdjunto,
-            command.EsRevisionManual);
+            command.EsRevisionManual,
+            command.CategoriaId);
 
         await repositorio.ActualizarAsync(evaluacion, cancellationToken);
         return pregunta.Id;
