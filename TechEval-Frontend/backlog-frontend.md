@@ -391,9 +391,9 @@ Implementar comparacion de candidatos, ranking, paginacion, filtros y mejoras de
 - [ ] Preview de preguntas seleccionadas antes de confirmar
 
 ### Backlog Frontend — Sprint F (Evaluaciones Dinámicas)
-- [ ] UI: configuración modo selección (Fijas / Aleatorias por categoría / Por dificultad)
-- [ ] UI: configuración distribución de dificultad (Fácil: N, Medio: N, Difícil: N)
-- [ ] UI: cantidad de preguntas por sesión
+- [x] UI: configuración modo selección (Fijas / Aleatorias por categoría / Por dificultad)
+- [x] UI: configuración distribución de dificultad (Fácil: N, Medio: N, Difícil: N)
+- [x] UI: cantidad de preguntas por sesión
 
 ### Registro de avance (2026-03-20 — Sprint D: Transcripciones y Scoring Combinado)
 - `ResultadosApiService`: `TranscripcionDto` interface agregada; `ResultadoSesionDto` actualizado con campo `transcripciones: ReadonlyArray<TranscripcionDto>`; métodos `subirTranscripcion()` (FormData multipart) y `evaluarTranscripcionConIa()` (JSON).
@@ -417,3 +417,12 @@ Implementar comparacion de candidatos, ranking, paginacion, filtros y mejoras de
 - Backend: `Categoria` domain entity, `IRepositorioCategoria`, CRUD commands/queries, `CategoriasController`, `ObtenerPreguntasBancoAsync`, `AgregarPreguntasMasivasCommand`, `ObtenerPreguntasBancoQuery`, migration `20260320140000_Fase6_Categorias`, `RepositorioCategoria`.
 - Tests: 5 nuevos tests de dominio en `CategoriaTests.cs` (83 total, todos verdes).
 - Validación: `dotnet build` ✅ 0 errores; `dotnet test` ✅ 83 tests; `ng build` ✅ 1.98 MB.
+
+### Registro de avance (2026-03-20 — Sprint F: Evaluaciones Dinámicas — Épica 8)
+- `evaluaciones.models.ts`: tipo `ModoSeleccionPreguntas` ('Fijas' | 'Aleatorias' | 'PorDistribucionDificultad'); `EvaluacionResumenDto` +`modoSeleccionPreguntas`; `EvaluacionDetalleDto` +`modoSeleccionPreguntas`, +`cantidadPreguntasSesion`, +`distribucionFacil/Medio/Dificil`; `ActualizarEvaluacionRequest` +5 nuevos campos.
+- `label.pipe.ts`: etiquetas `Fijas`, `Aleatorias`, `PorDistribucionDificultad` agregadas.
+- `form-detail-page.component.ts`: `ModoSeleccionPreguntas` importado; signals `modosSeleccion`, `modoLabels`; `editEvaluacionForm` +5 nuevos controles (`modoSeleccionPreguntas`, `cantidadPreguntasSesion`, `distribucionFacil/Medio/Dificil`); `cargar()` pobla nuevos campos; `guardarEvaluacion()` envía nuevos campos al API.
+- `form-detail-page.component.html`: select "Modo de selección de preguntas" + input condicional para `Aleatorias` + grid 3 columnas condicional para `PorDistribucionDificultad`.
+- Backend: `ModoSeleccionPreguntas` enum, `DistribucionDificultad` record, `Evaluacion.ConfigurarSeleccionDinamica()`, 2 nuevos `ErrorDominio`; `CrearSesionCommandHandler` +`SeleccionarAleatorias()`/`SeleccionarPorDistribucion()`; `ActualizarEvaluacionCommand/Handler` +5 nuevos params; `ObtenerEvaluacionQuery.EvaluacionDto`/`ListarEvaluacionesQuery.EvaluacionResumenDto` +nuevos campos; `EvaluacionesController.ActualizarEvaluacionRequest` +5 campos; `EvaluacionConfiguration` +`OwnsOne(DistribucionDificultad)` + `ModoSeleccionPreguntas` + `CantidadPreguntasSesion`; migración `20260320150000_Fase8_EvaluacionDinamica` (`.cs` + `.Designer.cs`); snapshot actualizado.
+- Tests: 8 nuevos tests (5 en `EvaluacionTests.cs`, 3 en nuevo `DistribucionDificultadTests.cs`). 91 tests en total, todos verdes.
+- Validación: `dotnet build` ✅ 0 errores; `dotnet test` ✅ 91 tests; `ng build` ✅ 1.99 MB.

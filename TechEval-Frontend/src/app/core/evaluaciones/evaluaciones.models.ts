@@ -1,5 +1,6 @@
 export type TipoPregunta = 'TextoLibre' | 'SeleccionUnica' | 'SeleccionMultiple';
 export type NivelDificultad = 'Facil' | 'Medio' | 'Dificil';
+export type ModoSeleccionPreguntas = 'Fijas' | 'Aleatorias' | 'PorDistribucionDificultad';
 
 export interface EvaluacionResumenDto {
   readonly id: string;
@@ -10,6 +11,7 @@ export interface EvaluacionResumenDto {
   readonly ordenPorDificultad: boolean;
   readonly totalPreguntas: number;
   readonly creadoEn: string;
+  readonly modoSeleccionPreguntas: ModoSeleccionPreguntas;
 }
 
 export interface OpcionRespuestaDto {
@@ -43,6 +45,11 @@ export interface EvaluacionDetalleDto {
   readonly creadoPor: string;
   readonly creadoEn: string;
   readonly actualizadoEn: string | null;
+  readonly modoSeleccionPreguntas: ModoSeleccionPreguntas;
+  readonly cantidadPreguntasSesion: number | null;
+  readonly distribucionFacil: number | null;
+  readonly distribucionMedio: number | null;
+  readonly distribucionDificil: number | null;
   readonly preguntas: ReadonlyArray<PreguntaDto>;
 }
 
@@ -58,6 +65,11 @@ export interface ActualizarEvaluacionRequest {
   readonly descripcion: string | null;
   readonly ordenAleatorio: boolean;
   readonly ordenPorDificultad: boolean;
+  readonly modoSeleccionPreguntas: ModoSeleccionPreguntas;
+  readonly cantidadPreguntasSesion: number | null;
+  readonly distribucionFacil: number;
+  readonly distribucionMedio: number;
+  readonly distribucionDificil: number;
 }
 
 export interface CrearEvaluacionResponse {

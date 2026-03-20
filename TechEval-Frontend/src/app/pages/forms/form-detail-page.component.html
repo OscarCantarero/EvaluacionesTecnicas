@@ -78,6 +78,40 @@
           </label>
         </div>
 
+        <!-- Modo de selección de preguntas (Épica 8) -->
+        <div class="mt-4">
+          <label class="label"><span class="ui-label">Modo de selección de preguntas</span></label>
+          <select class="select select-bordered w-full" formControlName="modoSeleccionPreguntas">
+            <option value="Fijas">Fijas (todas las preguntas)</option>
+            <option value="Aleatorias">Aleatorias (N al azar)</option>
+            <option value="PorDistribucionDificultad">Por distribución de dificultad</option>
+          </select>
+        </div>
+
+        @if (editEvaluacionForm.controls.modoSeleccionPreguntas.value === 'Aleatorias') {
+          <div class="mt-2">
+            <label class="label"><span class="ui-label text-sm">Cantidad de preguntas por sesión *</span></label>
+            <input type="number" class="input input-bordered w-full input-sm" formControlName="cantidadPreguntasSesion" min="1" placeholder="ej: 10" />
+          </div>
+        }
+
+        @if (editEvaluacionForm.controls.modoSeleccionPreguntas.value === 'PorDistribucionDificultad') {
+          <div class="mt-2 grid grid-cols-3 gap-2">
+            <div>
+              <label class="label"><span class="label-text text-xs">Fáciles</span></label>
+              <input type="number" class="input input-bordered w-full input-sm" formControlName="distribucionFacil" min="0" placeholder="0" />
+            </div>
+            <div>
+              <label class="label"><span class="label-text text-xs">Medias</span></label>
+              <input type="number" class="input input-bordered w-full input-sm" formControlName="distribucionMedio" min="0" placeholder="0" />
+            </div>
+            <div>
+              <label class="label"><span class="label-text text-xs">Difíciles</span></label>
+              <input type="number" class="input input-bordered w-full input-sm" formControlName="distribucionDificil" min="0" placeholder="0" />
+            </div>
+          </div>
+        }
+
         <button class="ui-btn-secondary gap-1" type="submit" [disabled]="editEvaluacionForm.invalid || updatingEvaluacion()">
           @if (updatingEvaluacion()) { Guardando... } @else {
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M15.172 2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4.828a2 2 0 0 0-.586-1.414l-1.828-1.828A2 2 0 0 0 15.172 2zM10 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zM5 4h6v3H5V4z"/></svg>

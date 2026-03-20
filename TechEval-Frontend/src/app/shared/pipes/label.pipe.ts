@@ -45,7 +45,12 @@ const LABELS: Record<string, string> = {
 
   // TipoTranscripcion
   Sesion: 'Sesión',
-  Entrevista: 'Entrevista'
+  Entrevista: 'Entrevista',
+
+  // ModoSeleccionPreguntas
+  Fijas: 'Fijas',
+  Aleatorias: 'Aleatorias',
+  PorDistribucionDificultad: 'Por distribución'
 };
 
 @Pipe({ name: 'label', pure: true })

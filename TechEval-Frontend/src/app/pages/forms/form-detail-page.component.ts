@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { EvaluacionesApiService } from '../../core/evaluaciones/evaluaciones-api.service';
-import { EvaluacionDetalleDto, NivelDificultad, PreguntaBancoDto, TipoPregunta } from '../../core/evaluaciones/evaluaciones.models';
+import { EvaluacionDetalleDto, ModoSeleccionPreguntas, NivelDificultad, PreguntaBancoDto, TipoPregunta } from '../../core/evaluaciones/evaluaciones.models';
 import { CategoriasApiService, CategoriaDto } from '../../core/categorias/categorias-api.service';
 import { ProblemBannerComponent } from '../../shared/problem-banner/problem-banner.component';
 import { LabelPipe } from '../../shared/pipes/label.pipe';
@@ -47,6 +47,13 @@ export class FormDetailPageComponent implements OnInit {
 
   protected readonly tiposPregunta: ReadonlyArray<TipoPregunta> = ['TextoLibre', 'SeleccionUnica', 'SeleccionMultiple'];
   protected readonly nivelesDificultad: ReadonlyArray<NivelDificultad> = ['Facil', 'Medio', 'Dificil'];
+  protected readonly modosSeleccion: ReadonlyArray<ModoSeleccionPreguntas> = ['Fijas', 'Aleatorias', 'PorDistribucionDificultad'];
+
+  protected readonly modoLabels: Record<string, string> = {
+    Fijas: 'Fijas (todas las preguntas)',
+    Aleatorias: 'Aleatorias (N al azar)',
+    PorDistribucionDificultad: 'Por distribución de dificultad'
+  };
 
   protected readonly tipoLabels: Record<string, string> = {
     TextoLibre: 'Texto libre',
@@ -84,7 +91,12 @@ export class FormDetailPageComponent implements OnInit {
     nombre: ['', [Validators.required, Validators.maxLength(200)]],
     descripcion: ['', [Validators.maxLength(1000)]],
     ordenAleatorio: [false],
-    ordenPorDificultad: [false]
+    ordenPorDificultad: [false],
+    modoSeleccionPreguntas: ['Fijas' as ModoSeleccionPreguntas],
+    cantidadPreguntasSesion: [null as number | null],
+    distribucionFacil: [0],
+    distribucionMedio: [0],
+    distribucionDificil: [0]
   });
 
   protected readonly editPreguntaForm = this.fb.nonNullable.group({
@@ -139,7 +151,12 @@ export class FormDetailPageComponent implements OnInit {
             nombre: ev.nombre,
             descripcion: ev.descripcion ?? '',
             ordenAleatorio: ev.ordenAleatorio,
-            ordenPorDificultad: ev.ordenPorDificultad
+            ordenPorDificultad: ev.ordenPorDificultad,
+            modoSeleccionPreguntas: ev.modoSeleccionPreguntas ?? 'Fijas',
+            cantidadPreguntasSesion: ev.cantidadPreguntasSesion ?? null,
+            distribucionFacil: ev.distribucionFacil ?? 0,
+            distribucionMedio: ev.distribucionMedio ?? 0,
+            distribucionDificil: ev.distribucionDificil ?? 0
           });
 
           const firstPregunta = ev.preguntas[0];
@@ -235,7 +252,12 @@ export class FormDetailPageComponent implements OnInit {
         nombre: v.nombre.trim(),
         descripcion: v.descripcion.trim() || null,
         ordenAleatorio: v.ordenAleatorio,
-        ordenPorDificultad: v.ordenPorDificultad
+        ordenPorDificultad: v.ordenPorDificultad,
+        modoSeleccionPreguntas: v.modoSeleccionPreguntas,
+        cantidadPreguntasSesion: v.cantidadPreguntasSesion,
+        distribucionFacil: v.distribucionFacil ?? 0,
+        distribucionMedio: v.distribucionMedio ?? 0,
+        distribucionDificil: v.distribucionDificil ?? 0
       })
       .pipe(finalize(() => this.updatingEvaluacion.set(false)))
       .subscribe({ next: () => this.cargar() });

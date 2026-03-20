@@ -9,6 +9,7 @@ using TechEval.Application.Evaluaciones.Queries.ListarEvaluaciones;
 using TechEval.Application.Evaluaciones.Queries.ObtenerEvaluacion;
 using TechEval.Application.Resultados.Queries.CompararCandidatos;
 using TechEval.Application.Resultados.Queries.ObtenerRanking;
+using TechEval.Domain.Evaluaciones;
 
 namespace TechEval.API.Controllers;
 
@@ -52,7 +53,18 @@ public sealed class EvaluacionesController(ISender sender) : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Actualizar(Guid id, [FromBody] ActualizarEvaluacionRequest request, CancellationToken cancellationToken)
     {
-        await sender.Send(new ActualizarEvaluacionCommand(id, request.Nombre, request.Descripcion, request.OrdenAleatorio, request.OrdenPorDificultad), cancellationToken);
+        await sender.Send(new ActualizarEvaluacionCommand(
+            id,
+            request.Nombre,
+            request.Descripcion,
+            request.OrdenAleatorio,
+            request.OrdenPorDificultad,
+            Enum.TryParse<ModoSeleccionPreguntas>(request.ModoSeleccionPreguntas, out var modo) ? modo : ModoSeleccionPreguntas.Fijas,
+            request.CantidadPreguntasSesion,
+            request.DistribucionFacil,
+            request.DistribucionMedio,
+            request.DistribucionDificil
+        ), cancellationToken);
         return NoContent();
     }
 
@@ -91,5 +103,15 @@ public sealed class EvaluacionesController(ISender sender) : ControllerBase
     }
 }
 
-public sealed record ActualizarEvaluacionRequest(string Nombre, string? Descripcion, bool OrdenAleatorio, bool OrdenPorDificultad);
+public sealed record ActualizarEvaluacionRequest(
+    string Nombre,
+    string? Descripcion,
+    bool OrdenAleatorio,
+    bool OrdenPorDificultad,
+    string ModoSeleccionPreguntas = "Fijas",
+    int? CantidadPreguntasSesion = null,
+    int DistribucionFacil = 0,
+    int DistribucionMedio = 0,
+    int DistribucionDificil = 0
+);
 public sealed record CompararCandidatosRequest(List<Guid> SesionIds);

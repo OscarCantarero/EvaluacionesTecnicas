@@ -21,7 +21,8 @@ public sealed record EvaluacionResumenDto(
     bool OrdenAleatorio,
     bool OrdenPorDificultad,
     int TotalPreguntas,
-    DateTime CreadoEn);
+    DateTime CreadoEn,
+    string ModoSeleccionPreguntas);
 
 public sealed class ListarEvaluacionesQueryHandler(
     IRepositorioEvaluacion repositorio,
@@ -56,7 +57,8 @@ public sealed class ListarEvaluacionesQueryHandler(
             .Take(query.TamanoPagina)
             .Select(e => new EvaluacionResumenDto(
                 e.Id, e.Nombre, e.Descripcion, e.Estado.ToString(),
-                e.OrdenAleatorio, e.OrdenPorDificultad, e.Preguntas.Count, e.CreadoEn))
+                e.OrdenAleatorio, e.OrdenPorDificultad, e.Preguntas.Count, e.CreadoEn,
+                e.ModoSeleccionPreguntas.ToString()))
             .ToList();
 
         return new ResultadoPaginado<EvaluacionResumenDto>(items, total, query.Pagina, query.TamanoPagina);

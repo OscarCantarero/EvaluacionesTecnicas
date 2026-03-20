@@ -2,6 +2,7 @@ using MediatR;
 using TechEval.Application.Common.Exceptions;
 using TechEval.Application.Common.Interfaces;
 using TechEval.Domain.Common.ValueObjects;
+using TechEval.Domain.Evaluaciones;
 using TechEval.Domain.Evaluaciones.Repositorios;
 using TechEval.Domain.Sesiones;
 using TechEval.Domain.Sesiones.Repositorios;
@@ -58,6 +59,14 @@ public sealed class CrearSesionCommandHandler : IRequestHandler<CrearSesionComma
                 .ToList();
         }
 
+        // Selección según modo (Épica 8)
+        preguntasOrdenadas = evaluacion.ModoSeleccionPreguntas switch
+        {
+            ModoSeleccionPreguntas.Aleatorias => SeleccionarAleatorias(preguntasOrdenadas, evaluacion.CantidadPreguntasSesion ?? preguntasOrdenadas.Count),
+            ModoSeleccionPreguntas.PorDistribucionDificultad when evaluacion.DistribucionDificultad != null => SeleccionarPorDistribucion(preguntasOrdenadas, evaluacion.DistribucionDificultad),
+            _ => preguntasOrdenadas   // Fijas: keep all
+        };
+
         var preguntasParaSesion = preguntasOrdenadas
             .Select((p, idx) => (
                 PreguntaId: p.Id,
@@ -80,5 +89,24 @@ public sealed class CrearSesionCommandHandler : IRequestHandler<CrearSesionComma
             CodigoAcceso: sesion.CodigoAcceso!,
             UrlSesion: $"/evaluacion/{sesion.CodigoAcceso}"
         );
+    }
+
+    private static List<Pregunta> SeleccionarAleatorias(List<Pregunta> pool, int cantidad)
+    {
+        var max = Math.Min(cantidad, pool.Count);
+        return pool.OrderBy(_ => Guid.NewGuid()).Take(max).ToList();
+    }
+
+    private static List<Pregunta> SeleccionarPorDistribucion(List<Pregunta> pool, DistribucionDificultad distribucion)
+    {
+        var facil = pool.Where(p => p.NivelDificultad == NivelDificultad.Facil)
+            .OrderBy(_ => Guid.NewGuid()).Take(distribucion.Facil);
+        var medio = pool.Where(p => p.NivelDificultad == NivelDificultad.Medio)
+            .OrderBy(_ => Guid.NewGuid()).Take(distribucion.Medio);
+        var dificil = pool.Where(p => p.NivelDificultad == NivelDificultad.Dificil)
+            .OrderBy(_ => Guid.NewGuid()).Take(distribucion.Dificil);
+        return facil.Concat(medio).Concat(dificil)
+            .OrderBy(_ => Guid.NewGuid())  // shuffle mix
+            .ToList();
     }
 }

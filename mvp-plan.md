@@ -1301,13 +1301,13 @@ Evaluacion (cambios)
 
 | # | Tarea | Capa |
 |---|---|---|
-| 8.1 | Agregar `ModoSeleccionPreguntas`, `CantidadPreguntasSesion` y `DistribucionDificultad` a `Evaluacion` | Domain |
-| 8.2 | Modificar `CrearSesionCommandHandler` para seleccionar preguntas según el modo | Application |
-| 8.3 | Si modo=Aleatorias: elegir N preguntas random del pool de la evaluación por categoría/dificultad | Application |
-| 8.4 | Si modo=Fijas: comportamiento actual (todas las preguntas) | Application |
-| 8.5 | Migración EF para nuevos campos | Infrastructure |
-| 8.6 | UI: configuración del modo de selección en detalle de evaluación | Frontend |
-| 8.7 | UI: configuración de distribución de dificultad | Frontend |
+| 8.1 | ✅ Agregar `ModoSeleccionPreguntas`, `CantidadPreguntasSesion` y `DistribucionDificultad` a `Evaluacion` | Domain |
+| 8.2 | ✅ Modificar `CrearSesionCommandHandler` para seleccionar preguntas según el modo | Application |
+| 8.3 | ✅ Si modo=Aleatorias: elegir N preguntas random del pool de la evaluación por categoría/dificultad | Application |
+| 8.4 | ✅ Si modo=Fijas: comportamiento actual (todas las preguntas) | Application |
+| 8.5 | ✅ Migración EF para nuevos campos | Infrastructure |
+| 8.6 | ✅ UI: configuración del modo de selección en detalle de evaluación | Frontend |
+| 8.7 | ✅ UI: configuración de distribución de dificultad | Frontend |
 
 ---
 
@@ -1349,7 +1349,7 @@ Evaluacion (cambios)
 - [x] Generación masiva de preguntas (Épica 7)
 
 #### Sprint F — Evaluaciones Dinámicas (Prioridad 8)
-- [ ] Modo selección aleatorio/dificultad (Épica 8)
+- [x] Modo selección aleatorio/dificultad (Épica 8)
 
 ---
 

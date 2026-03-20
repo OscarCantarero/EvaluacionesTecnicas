@@ -16,6 +16,11 @@ public sealed record EvaluacionDto(
     string CreadoPor,
     DateTime CreadoEn,
     DateTime? ActualizadoEn,
+    string ModoSeleccionPreguntas,
+    int? CantidadPreguntasSesion,
+    int? DistribucionFacil,
+    int? DistribucionMedio,
+    int? DistribucionDificil,
     List<PreguntaDto> Preguntas);
 
 public sealed record PreguntaDto(
@@ -55,6 +60,11 @@ public sealed class ObtenerEvaluacionQueryHandler(IRepositorioEvaluacion reposit
             evaluacion.CreadoPor,
             evaluacion.CreadoEn,
             evaluacion.ActualizadoEn,
+            evaluacion.ModoSeleccionPreguntas.ToString(),
+            evaluacion.CantidadPreguntasSesion,
+            evaluacion.DistribucionDificultad?.Facil,
+            evaluacion.DistribucionDificultad?.Medio,
+            evaluacion.DistribucionDificultad?.Dificil,
             evaluacion.Preguntas.Select(p => new PreguntaDto(
                 p.Id,
                 p.Texto,

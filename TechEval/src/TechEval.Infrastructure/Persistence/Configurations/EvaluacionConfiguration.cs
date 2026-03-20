@@ -25,6 +25,18 @@ public sealed class EvaluacionConfiguration : IEntityTypeConfiguration<Evaluacio
         builder.Navigation(e => e.Preguntas)
             .HasField("_preguntas")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.ModoSeleccionPreguntas)
+            .HasConversion<string>()
+            .HasMaxLength(30);
+        builder.Property(e => e.CantidadPreguntasSesion);
+        // DistribucionDificultad is an owned type stored as columns on the same table
+        builder.OwnsOne(e => e.DistribucionDificultad, dist =>
+        {
+            dist.Property(d => d.Facil).HasColumnName("distribucion_facil");
+            dist.Property(d => d.Medio).HasColumnName("distribucion_medio");
+            dist.Property(d => d.Dificil).HasColumnName("distribucion_dificil");
+        });
     }
 }
 
