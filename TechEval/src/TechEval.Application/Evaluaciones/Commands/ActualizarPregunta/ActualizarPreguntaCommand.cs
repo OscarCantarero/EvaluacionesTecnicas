@@ -13,7 +13,8 @@ public sealed record ActualizarPreguntaCommand(
     NivelDificultad NivelDificultad,
     int? LimiteTiempoSegundos,
     bool PermiteAdjunto,
-    bool EsRevisionManual
+    bool EsRevisionManual,
+    Guid? CategoriaId = null
 ) : IRequest;
 
 public sealed class ActualizarPreguntaCommandHandler(IRepositorioEvaluacion repositorio)
@@ -31,7 +32,8 @@ public sealed class ActualizarPreguntaCommandHandler(IRepositorioEvaluacion repo
             command.NivelDificultad,
             command.LimiteTiempoSegundos,
             command.PermiteAdjunto,
-            command.EsRevisionManual);
+            command.EsRevisionManual,
+            command.CategoriaId);
 
         await repositorio.ActualizarAsync(evaluacion, cancellationToken);
     }

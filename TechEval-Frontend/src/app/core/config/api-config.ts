@@ -4,6 +4,7 @@ export const API_CONFIG = {
     auth: '/api/auth',
     evaluaciones: '/api/evaluaciones',
     sesiones: '/api/sesiones',
-    resultados: '/api/resultados'
+    resultados: '/api/resultados',
+    categorias: '/api/categorias'
   }
 } as const;

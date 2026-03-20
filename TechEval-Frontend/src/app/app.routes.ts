@@ -4,6 +4,7 @@ import { AppShellComponent } from './layout/app-shell.component';
 import { CandidateAccessPageComponent } from './pages/candidate-access/candidate-access-page.component';
 import { CandidateQuizPageComponent } from './pages/candidate-quiz/candidate-quiz-page.component';
 import { CandidateScoresPageComponent } from './pages/candidate-scores/candidate-scores-page.component';
+import { CategoriasPageComponent } from './pages/categorias/categorias-page.component';
 import { ComparePageComponent } from './pages/compare/compare-page.component';
 import { DashboardPageComponent } from './pages/dashboard/dashboard-page.component';
 import { FormCreatePageComponent } from './pages/forms/form-create-page.component';
@@ -46,6 +47,12 @@ export const routes: Routes = [
 			{
 				path: 'formularios/:id',
 				component: FormDetailPageComponent,
+				canActivate: [roleGuard],
+				data: { roles: ['Evaluador', 'Administrador'] }
+			},
+			{
+				path: 'categorias',
+				component: CategoriasPageComponent,
 				canActivate: [roleGuard],
 				data: { roles: ['Evaluador', 'Administrador'] }
 			},

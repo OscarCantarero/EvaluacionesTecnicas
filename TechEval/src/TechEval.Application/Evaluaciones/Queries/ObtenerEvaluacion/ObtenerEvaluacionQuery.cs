@@ -27,6 +27,7 @@ public sealed record PreguntaDto(
     bool PermiteAdjunto,
     bool EsRevisionManual,
     int Orden,
+    Guid? CategoriaId,
     List<OpcionRespuestaDto> Opciones);
 
 public sealed record OpcionRespuestaDto(
@@ -63,6 +64,7 @@ public sealed class ObtenerEvaluacionQueryHandler(IRepositorioEvaluacion reposit
                 p.PermiteAdjunto,
                 p.EsRevisionManual,
                 p.Orden,
+                p.CategoriaId,
                 p.Opciones.Select(o => new OpcionRespuestaDto(
                     o.Id,
                     o.Texto,

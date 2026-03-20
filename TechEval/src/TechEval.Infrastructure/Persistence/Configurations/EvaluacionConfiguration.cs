@@ -38,6 +38,8 @@ public sealed class PreguntaConfiguration : IEntityTypeConfiguration<Pregunta>
         builder.Property(p => p.Texto).IsRequired().HasMaxLength(2000);
         builder.Property(p => p.TipoPregunta).HasConversion<string>().HasMaxLength(30);
         builder.Property(p => p.NivelDificultad).HasConversion<string>().HasMaxLength(20);
+        builder.Property(p => p.CategoriaId).HasColumnName("categoria_id");
+        builder.HasIndex(p => p.CategoriaId);
 
         builder.HasMany(p => p.Opciones)
             .WithOne()
@@ -58,5 +60,19 @@ public sealed class OpcionRespuestaConfiguration : IEntityTypeConfiguration<Opci
         builder.HasKey(o => o.Id);
         builder.Property(o => o.Id).ValueGeneratedNever();
         builder.Property(o => o.Texto).IsRequired().HasMaxLength(1000);
+    }
+}
+
+public sealed class CategoriaConfiguration : IEntityTypeConfiguration<Categoria>
+{
+    public void Configure(EntityTypeBuilder<Categoria> builder)
+    {
+        builder.ToTable("categorias");
+        builder.HasKey(c => c.Id);
+        builder.Property(c => c.Id).ValueGeneratedNever();
+        builder.Property(c => c.Nombre).IsRequired().HasMaxLength(200);
+        builder.Property(c => c.Descripcion).HasMaxLength(1000);
+        builder.Property(c => c.CreadoPor).IsRequired().HasMaxLength(450);
+        builder.HasIndex(c => c.Nombre).IsUnique();
     }
 }

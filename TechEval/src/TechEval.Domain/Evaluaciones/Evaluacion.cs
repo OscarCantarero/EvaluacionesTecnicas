@@ -79,10 +79,11 @@ public sealed class Evaluacion : AgregadoRaiz
         Common.ValueObjects.NivelDificultad nivel,
         int? limiteTiempoSegundos,
         bool permiteAdjunto,
-        bool esRevisionManual)
+        bool esRevisionManual,
+        Guid? categoriaId = null)
     {
         var orden = _preguntas.Count + 1;
-        var pregunta = Pregunta.Crear(Id, texto, tipo, nivel, limiteTiempoSegundos, permiteAdjunto, esRevisionManual, orden);
+        var pregunta = Pregunta.Crear(Id, texto, tipo, nivel, limiteTiempoSegundos, permiteAdjunto, esRevisionManual, orden, categoriaId);
         _preguntas.Add(pregunta);
         ActualizadoEn = DateTime.UtcNow;
         return pregunta;
@@ -95,11 +96,13 @@ public sealed class Evaluacion : AgregadoRaiz
         Common.ValueObjects.NivelDificultad nivel,
         int? limiteTiempoSegundos,
         bool permiteAdjunto,
-        bool esRevisionManual)
+        bool esRevisionManual,
+        Guid? categoriaId = null)
     {
         var pregunta = _preguntas.FirstOrDefault(p => p.Id == preguntaId)
             ?? throw ErroresEvaluacion.PreguntaNoEncontrada.ToException();
         pregunta.Actualizar(texto, tipo, nivel, limiteTiempoSegundos, permiteAdjunto, esRevisionManual);
+        pregunta.AsignarCategoria(categoriaId);
         ActualizadoEn = DateTime.UtcNow;
     }
 

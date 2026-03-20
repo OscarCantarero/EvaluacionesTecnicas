@@ -10,5 +10,6 @@ public sealed record AgregarPreguntaCommand(
     NivelDificultad NivelDificultad,
     int? LimiteTiempoSegundos,
     bool PermiteAdjunto,
-    bool EsRevisionManual
+    bool EsRevisionManual,
+    Guid? CategoriaId = null
 ) : IRequest<Guid>;

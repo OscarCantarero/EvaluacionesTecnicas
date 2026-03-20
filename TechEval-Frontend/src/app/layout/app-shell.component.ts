@@ -43,6 +43,7 @@ export class AppShellComponent {
     { label: 'Iniciar cuestionario', route: '/candidato/acceso', icon: ICONS.play },
     { label: 'Mis puntajes', route: '/mis-puntajes', icon: ICONS.star },
     { label: 'Formularios y preguntas', route: '/formularios', icon: ICONS.document },
+    { label: 'Categorías', route: '/categorias', icon: ICONS.tag },
     { label: 'Sesiones en vivo', route: '/sesiones', icon: ICONS.play },
     { label: 'Resultados y revisión', route: '/resultados', icon: ICONS.clipboard },
     { label: 'Comparar candidatos', route: '/comparar', icon: ICONS.chart },

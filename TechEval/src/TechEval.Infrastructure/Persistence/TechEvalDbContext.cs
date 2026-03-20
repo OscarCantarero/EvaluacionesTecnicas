@@ -14,6 +14,7 @@ public sealed class TechEvalDbContext(DbContextOptions<TechEvalDbContext> option
     public DbSet<Evaluacion> Evaluaciones => Set<Evaluacion>();
     public DbSet<Pregunta> Preguntas => Set<Pregunta>();
     public DbSet<OpcionRespuesta> OpcionesRespuesta => Set<OpcionRespuesta>();
+    public DbSet<Categoria> Categorias => Set<Categoria>();
     public DbSet<RefreshTokenEntry> RefreshTokens => Set<RefreshTokenEntry>();
     public DbSet<SesionEvaluacion> Sesiones => Set<SesionEvaluacion>();
     public DbSet<PreguntaSesion> PreguntasSesion => Set<PreguntaSesion>();

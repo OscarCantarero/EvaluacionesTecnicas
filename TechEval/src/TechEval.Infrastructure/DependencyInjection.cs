@@ -86,6 +86,7 @@ public static class DependencyInjection
         services.AddScoped<IRepositorioEvaluacion, RepositorioEvaluacion>();
         services.AddScoped<IRepositorioSesionEvaluacion, RepositorioSesionEvaluacion>();
         services.AddScoped<IRepositorioResultadoEvaluacion, RepositorioResultadoEvaluacion>();
+        services.AddScoped<IRepositorioCategoria, RepositorioCategoria>();
 
         // HttpContextAccessor (needed for IContextoUsuario)
         services.AddHttpContextAccessor();

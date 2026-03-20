@@ -16,6 +16,7 @@ public sealed class Pregunta
     public bool PermiteAdjunto { get; private set; }
     public bool EsRevisionManual { get; private set; }
     public int Orden { get; private set; }
+    public Guid? CategoriaId { get; private set; }
     public IReadOnlyCollection<OpcionRespuesta> Opciones => _opciones.AsReadOnly();
 
     private Pregunta() { }
@@ -28,7 +29,8 @@ public sealed class Pregunta
         int? limiteTiempoSegundos,
         bool permiteAdjunto,
         bool esRevisionManual,
-        int orden)
+        int orden,
+        Guid? categoriaId = null)
     {
         if (limiteTiempoSegundos.HasValue && limiteTiempoSegundos <= 0)
             throw ErroresEvaluacion.LimiteTiempoInvalido.ToException();
@@ -43,7 +45,8 @@ public sealed class Pregunta
             LimiteTiempoSegundos = limiteTiempoSegundos,
             PermiteAdjunto = permiteAdjunto,
             EsRevisionManual = esRevisionManual,
-            Orden = orden
+            Orden = orden,
+            CategoriaId = categoriaId
         };
     }
 
@@ -89,6 +92,11 @@ public sealed class Pregunta
         var opcion = _opciones.FirstOrDefault(o => o.Id == opcionId)
             ?? throw ErroresEvaluacion.OpcionNoEncontrada.ToException();
         _opciones.Remove(opcion);
+    }
+
+    internal void AsignarCategoria(Guid? categoriaId)
+    {
+        CategoriaId = categoriaId;
     }
 
     // Needed for EF Core collection loading
