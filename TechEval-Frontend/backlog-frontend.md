@@ -384,10 +384,10 @@ Implementar comparacion de candidatos, ranking, paginacion, filtros y mejoras de
 - [x] UI: badge "Aprobado" / "No aprobado" (umbral 70%)
 
 ### Backlog Frontend — Sprint E (Categorías + Banco de Preguntas)
-- [ ] Página de gestión de categorías (CRUD)
-- [ ] Selector de categoría al crear/editar pregunta
+- [x] Página de gestión de categorías (CRUD)
+- [x] Selector de categoría al crear/editar pregunta
 - [ ] Filtro por categoría en listado de preguntas
-- [ ] Modal "Agregar del banco": filtros (categoría, dificultad, tipo) + cantidad
+- [x] Modal "Agregar del banco": filtros (categoría, dificultad, tipo) + selección con checkbox
 - [ ] Preview de preguntas seleccionadas antes de confirmar
 
 ### Backlog Frontend — Sprint F (Evaluaciones Dinámicas)
@@ -402,3 +402,18 @@ Implementar comparacion de candidatos, ranking, paginacion, filtros y mejoras de
 - `candidate-scores-page.component.html`: badge "Aprobado"/"No aprobado" para candidatos (Task 5.14).
 - `LabelPipe`: etiquetas `Aprobado`, `No aprobado`, `Subida`, `EvaluadaPorIA`, `Sesion`, `Entrevista` agregadas.
 - Validación: `ng build --configuration=development` ✅ verde (1.94 MB).
+
+### Registro de avance (2026-03-20 — Sprint E: Categorías de Preguntas + Generación Masiva)
+- `api-config.ts`: endpoint `categorias: '/api/categorias'` agregado.
+- `categorias-api.service.ts`: creado con `listar()`, `crear()`, `actualizar()`, `eliminar()`.
+- `evaluaciones.models.ts`: `PreguntaDto.categoriaId` agregado; `CrearPreguntaRequest.categoriaId` y `ActualizarPreguntaRequest.categoriaId` agregados; nueva interface `PreguntaBancoDto`.
+- `evaluaciones-api.service.ts`: importado `PreguntaBancoDto`; métodos `obtenerPreguntasBanco()` y `agregarDelBanco()` agregados.
+- `icons.ts`: icono `tag` agregado (SVG Heroicons).
+- `app-shell.component.ts`: nav item "Categorías" (ruta `/categorias`, icono `tag`) agregado entre Formularios y Sesiones.
+- `app.routes.ts`: ruta `/categorias` (CategoriasPageComponent, roleGuard: Evaluador/Administrador).
+- `CategoriasPageComponent`: página CRUD de categorías (two-column: formulario + lista con editar/borrar).
+- `form-detail-page.component.ts`: `CategoriasApiService` inyectado; signals `categorias`, `mostrarBanco`, `bancoCargando`, `bancoPreguntas`, `bancoSeleccionadas`, `agregandoDelBanco`, filtros banco; métodos `abrirBanco()`, `cargarBanco()`, `toggleSeleccionBanco()`, `confirmarBanco()`; `categoriaId` en `preguntaForm` y `editPreguntaForm`; `ngOnInit` carga categorías; `crearPregunta`/`actualizarPregunta` pasan `categoriaId`.
+- `form-detail-page.component.html`: select de categoría en formulario agregar-pregunta y editar-pregunta; botón "+ Agregar del banco"; modal con filtros (categoría, dificultad, tipo), lista con checkbox, confirmación.
+- Backend: `Categoria` domain entity, `IRepositorioCategoria`, CRUD commands/queries, `CategoriasController`, `ObtenerPreguntasBancoAsync`, `AgregarPreguntasMasivasCommand`, `ObtenerPreguntasBancoQuery`, migration `20260320140000_Fase6_Categorias`, `RepositorioCategoria`.
+- Tests: 5 nuevos tests de dominio en `CategoriaTests.cs` (83 total, todos verdes).
+- Validación: `dotnet build` ✅ 0 errores; `dotnet test` ✅ 83 tests; `ng build` ✅ 1.98 MB.

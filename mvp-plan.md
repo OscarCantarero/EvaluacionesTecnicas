@@ -1345,8 +1345,8 @@ Evaluacion (cambios)
 - [x] UI transcripciones + scoring combinado (Épica 5.10-5.15)
 
 #### Sprint E — Categorías + Banco de Preguntas (Prioridad 6-7)
-- [ ] Sistema de categorías completo (Épica 6)
-- [ ] Generación masiva de preguntas (Épica 7)
+- [x] Sistema de categorías completo (Épica 6)
+- [x] Generación masiva de preguntas (Épica 7)
 
 #### Sprint F — Evaluaciones Dinámicas (Prioridad 8)
 - [ ] Modo selección aleatorio/dificultad (Épica 8)
@@ -1363,8 +1363,8 @@ Evaluacion (cambios)
 - [x] Transcripciones (sesión + entrevista) evaluables por IA
 - [x] Scoring combinado: respuestas + transcripción sesión + transcripción entrevista
 - [x] Umbral de aprobación 70% implementado
-- [ ] Sistema de categorías de preguntas funcional
-- [ ] Generación masiva de preguntas desde banco por categoría/dificultad
+- [x] Sistema de categorías de preguntas funcional
+- [x] Generación masiva de preguntas desde banco por categoría/dificultad
 - [ ] Evaluaciones con selección aleatoria/por dificultad
 - [x] Estado de evaluación gestionable (no se queda en Borrador)
 - [x] `dotnet build` verde, `dotnet test` verde, `ng build` verde
@@ -1436,5 +1436,39 @@ Evaluacion (cambios)
 - `dotnet build`: ✅ GREEN (0 errors)
 - `dotnet test`: ✅ 77/77 passing
 - `ng build --configuration=development`: ✅ GREEN (1.94 MB)
+- Code review: ✅ 0 comentarios
+- CodeQL: ✅ 0 alerts
+
+### Avance — 2026-03-20 (Sprint E: Épicas 6 & 7)
+
+**Épica 6 — Categorías de Preguntas (6.1–6.8):**
+- `Categoria` domain entity (AgregadoRaiz): `Crear()`, `Actualizar()`, inmutabilidad garantizada.
+- `Pregunta.CategoriaId: Guid?` + `AsignarCategoria()` internal method.
+- `Evaluacion.AgregarPregunta()` y `ActualizarPregunta()` con param opcional `Guid? categoriaId = null`.
+- `IRepositorioCategoria` con `ListarAsync()` y `ExistePorNombreAsync()`.
+- CRUD Application: `CrearCategoriaCommand`, `ActualizarCategoriaCommand`, `EliminarCategoriaCommand`, `ListarCategoriasQuery`.
+- `CategoriasController` REST: GET/POST/PUT/DELETE `/api/categorias`.
+- `CategoriaConfiguration` (EF) + `categoria_id` FK en preguntas (SetNull on delete).
+- Migración `20260320140000_Fase6_Categorias` + Designer.cs + snapshot actualizados.
+- `RepositorioCategoria` implementación Infrastructure.
+- `PreguntaDto.CategoriaId` en `ObtenerEvaluacionQuery`; request records actualizados con `CategoriaId`.
+- Frontend: `CategoriasApiService`, ruta `/categorias`, `CategoriasPageComponent` (CRUD), selector categoría en formularios agregar/editar pregunta.
+
+**Épica 7 — Generación Masiva de Preguntas (7.1–7.5):**
+- `IRepositorioEvaluacion.ObtenerPreguntasBancoAsync()` con filtros (categorías, dificultades, tipo, excluir evaluación).
+- `ObtenerPreguntasBancoQuery` con `PreguntaBancoDto` (incluye nombre categoría y evaluación denormalizados).
+- `AgregarPreguntasMasivasCommand`: clona preguntas seleccionadas (con opciones) desde banco a evaluación destino.
+- Endpoints: `GET /api/evaluaciones/{id}/preguntas/banco`, `POST /api/evaluaciones/{id}/preguntas/agregar-del-banco`.
+- Frontend: botón "+ Agregar del banco", modal con filtros (categoría/dificultad/tipo), checkbox selection, confirmación.
+
+**Pendiente Sprint E:**
+- 6.9 Filtro por categoría en listado de preguntas (frontend)
+- 6.10 Seeder de categorías iniciales
+- 7.6 Preview de selección antes de confirmar (actualmente se muestra el conteo)
+
+**Estado de builds:**
+- `dotnet build`: ✅ GREEN (0 errors)
+- `dotnet test`: ✅ 83/83 passing (43 domain, 33 application, 7 architecture)
+- `ng build --configuration=development`: ✅ GREEN (1.98 MB)
 - Code review: ✅ 0 comentarios
 - CodeQL: ✅ 0 alerts
