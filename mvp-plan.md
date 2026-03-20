@@ -1341,8 +1341,8 @@ Evaluacion (cambios)
 - [x] Grabación de audio (Épica 4.3)
 
 #### Sprint D — Transcripciones + Scoring (Prioridad 5)
-- [ ] Modelo de transcripciones backend (Épica 5.1-5.9)
-- [ ] UI transcripciones + scoring combinado (Épica 5.10-5.15)
+- [x] Modelo de transcripciones backend (Épica 5.1-5.9)
+- [x] UI transcripciones + scoring combinado (Épica 5.10-5.15)
 
 #### Sprint E — Categorías + Banco de Preguntas (Prioridad 6-7)
 - [ ] Sistema de categorías completo (Épica 6)
@@ -1360,9 +1360,9 @@ Evaluacion (cambios)
   - [x] UI pulida y responsive en flujo de sesiones
   - [x] Tab lock activo durante sesiones de candidato
   - [x] Grabación de audio funcional durante sesiones
-- [ ] Transcripciones (sesión + entrevista) evaluables por IA
-- [ ] Scoring combinado: respuestas + transcripción sesión + transcripción entrevista
-- [ ] Umbral de aprobación 70% implementado
+- [x] Transcripciones (sesión + entrevista) evaluables por IA
+- [x] Scoring combinado: respuestas + transcripción sesión + transcripción entrevista
+- [x] Umbral de aprobación 70% implementado
 - [ ] Sistema de categorías de preguntas funcional
 - [ ] Generación masiva de preguntas desde banco por categoría/dificultad
 - [ ] Evaluaciones con selección aleatoria/por dificultad
@@ -1404,4 +1404,37 @@ Evaluacion (cambios)
 - `dotnet build`: ✅ GREEN (0 errors, 1 pre-existing warning)
 - `dotnet test`: ✅ 69/69 passing
 - `ng build --configuration=development`: ✅ GREEN (1.91 MB main.js)
+- CodeQL: ✅ 0 alerts
+
+### 2026-03-20 — Sprint D implementado (Épica 5: Transcripciones y Scoring Combinado)
+
+**Backend:**
+- `TranscripcionEvaluacion.cs` (Domain): nueva entidad hija de `ResultadoEvaluacion` con enums `TipoTranscripcion` (Sesion/Entrevista) y `EstadoTranscripcion` (Pendiente/Subida/EvaluadaPorIA). Métodos `Crear()` y `RegistrarEvaluacionIA()` con validación de rango 0-100.
+- `ResultadoEvaluacion.cs` (Domain): `_transcripciones` backing field + `Transcripciones` propiedad; constante `UmbralAprobacion = 70m`; método `AgregarTranscripcion()`; `CalcularPuntuacionTotal()` ahora promedia porcentaje de respuestas + puntajes IA de transcripciones (sin regresión cuando no hay transcripciones); `ObtenerEstadoGeneral()` ahora retorna "Aprobado"/"No aprobado" según umbral 70%.
+- `SubirTranscripcionCommand/Handler` (Application): sube transcripción (texto o archivo) a un resultado por sesión.
+- `EvaluarTranscripcionConIACommand/Handler` (Application): evalúa transcripción con IA y recalcula scoring combinado.
+- `ObtenerResultadosQuery` (Application): `TranscripcionDto` record agregado; respuesta incluye `Transcripciones`.
+- `ResultadosController` (API): 2 nuevos endpoints: `POST /api/resultados/{sesionId}/transcripciones` (multipart) y `POST .../transcripciones/{transcripcionId}/evaluar-ia`; inyección de `IServicioArchivos`.
+- `ResultadosConfigurations.cs` (Infrastructure): `TranscripcionEvaluacionConfiguration` (tabla `transcripciones_evaluacion`); FK cascade con `_transcripciones` backing field.
+- `TechEvalDbContext.cs` (Infrastructure): `DbSet<TranscripcionEvaluacion> Transcripciones`.
+- `RepositorioResultadoEvaluacion.cs` (Infrastructure): todos los métodos incluyen `.Include(r => r.Transcripciones)`.
+- Migración manual `20260320130000_Fase5_Transcripciones.cs` + Designer.cs + ModelSnapshot actualizados.
+
+**Tests:**
+- `ObtenerEstadoGeneral_VariosRangos_DebeClasificarCorrectamente`: datos actualizados a "Aprobado"/"No aprobado".
+- 8 nuevos tests de `TranscripcionEvaluacion` y scoring combinado.
+- Total: 77/77 tests pasando.
+
+**Frontend:**
+- `ResultadosApiService`: `TranscripcionDto` interface, `transcripciones` en `ResultadoSesionDto`, métodos `subirTranscripcion()` y `evaluarTranscripcionConIa()`.
+- `ResultsPageComponent`: signals + formulario de transcripciones + métodos `subirTranscripcion()`, `evaluarTranscripcionIa()`, `onArchivoTranscripcion()`.
+- `results-page.component.html`: badge Aprobado/No aprobado (5.14), tabla scoring combinado (5.13), lista de transcripciones + formulario de subida (5.10-5.12).
+- `candidate-scores-page.component.html`: badge Aprobado/No aprobado (5.14).
+- `LabelPipe`: etiquetas para `TipoTranscripcion`, `EstadoTranscripcion`, "Aprobado", "No aprobado".
+
+**Estado de builds:**
+- `dotnet build`: ✅ GREEN (0 errors)
+- `dotnet test`: ✅ 77/77 passing
+- `ng build --configuration=development`: ✅ GREEN (1.94 MB)
+- Code review: ✅ 0 comentarios
 - CodeQL: ✅ 0 alerts

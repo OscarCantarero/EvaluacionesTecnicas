@@ -377,11 +377,11 @@ Implementar comparacion de candidatos, ranking, paginacion, filtros y mejoras de
 > **Registro de avance 2026-03-20**: Sprint C completado. Tab Lock mejorado con `blur` listener, `beforeunload`, modal de violación con contador y señales reactivas. Screen recording via `getDisplayMedia` y audio via `getUserMedia`, ambos con manejo graceful de permisos denegados. Indicadores REC/AUDIO animados en header. Archivos subidos via `subirGrabacion` y `subirAudio` en `SesionesApiService`. Backend: endpoints `/grabacion` y `/audio`, dominio con `UrlGrabacionSesion`, `UrlGrabacionAudio`, `MaxViolacionesPestana`, auto-cancelación por exceso de violaciones (`EstadoSesion.Cancelada`). Migración `20260320120000_Fase4_GrabacionSesion` creada. `AgregarAdjunto` endpoint arreglado para usar `IServicioArchivos` real.
 
 ### Backlog Frontend — Sprint D (Transcripciones + Scoring)
-- [ ] UI: subir transcripción de entrevista (evaluador)
-- [ ] UI: estado de transcripción de sesión (auto-generada)
-- [ ] UI: botón "Evaluar transcripción con IA"
-- [ ] UI: tabla scoring combinado (Sesión + Trans. Sesión + Trans. Entrevista = Total %)
-- [ ] UI: badge "Aprobado" / "No aprobado" (umbral 70%)
+- [x] UI: subir transcripción de entrevista (evaluador)
+- [x] UI: estado de transcripción de sesión (auto-generada)
+- [x] UI: botón "Evaluar transcripción con IA"
+- [x] UI: tabla scoring combinado (Sesión + Trans. Sesión + Trans. Entrevista = Total %)
+- [x] UI: badge "Aprobado" / "No aprobado" (umbral 70%)
 
 ### Backlog Frontend — Sprint E (Categorías + Banco de Preguntas)
 - [ ] Página de gestión de categorías (CRUD)
@@ -394,3 +394,11 @@ Implementar comparacion de candidatos, ranking, paginacion, filtros y mejoras de
 - [ ] UI: configuración modo selección (Fijas / Aleatorias por categoría / Por dificultad)
 - [ ] UI: configuración distribución de dificultad (Fácil: N, Medio: N, Difícil: N)
 - [ ] UI: cantidad de preguntas por sesión
+
+### Registro de avance (2026-03-20 — Sprint D: Transcripciones y Scoring Combinado)
+- `ResultadosApiService`: `TranscripcionDto` interface agregada; `ResultadoSesionDto` actualizado con campo `transcripciones: ReadonlyArray<TranscripcionDto>`; métodos `subirTranscripcion()` (FormData multipart) y `evaluarTranscripcionConIa()` (JSON).
+- `ResultsPageComponent`: signals `subiendoTranscripcion`, `transcripcionMsg`, `archivoTranscripcion`; `transcripcionForm` (ReactiveForm con tipo/contenido); métodos `subirTranscripcion()`, `evaluarTranscripcionIa()`, `onArchivoTranscripcion()`.
+- `results-page.component.html`: badge "Aprobado"/"No aprobado" con umbral 70% (Task 5.14); tabla "Scoring combinado" con filas por componente (respuestas + transcripciones) y botón Evaluar IA (Task 5.13); sección de lista de transcripciones con estado/puntaje/justificación IA + formulario de subida con selector tipo, textarea, file input (Tasks 5.10-5.12).
+- `candidate-scores-page.component.html`: badge "Aprobado"/"No aprobado" para candidatos (Task 5.14).
+- `LabelPipe`: etiquetas `Aprobado`, `No aprobado`, `Subida`, `EvaluadaPorIA`, `Sesion`, `Entrevista` agregadas.
+- Validación: `ng build --configuration=development` ✅ verde (1.94 MB).

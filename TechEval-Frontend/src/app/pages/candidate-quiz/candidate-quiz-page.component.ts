@@ -45,6 +45,7 @@ export class CandidateQuizPageComponent {
   protected readonly grabandoPantalla = signal(false);
   protected readonly grabacionSesionBlob = signal<Blob | null>(null);
   protected readonly subiendoGrabacion = signal(false);
+  protected readonly grabacionDenegada = signal(false);  // true when screen/audio permissions denied
   private mediaRecorderPantalla: MediaRecorder | null = null;
   private chunksPantalla: BlobPart[] = [];
 
@@ -266,6 +267,7 @@ export class CandidateQuizPageComponent {
       this.grabandoPantalla.set(true);
     } catch (err) {
       console.warn('Grabación de pantalla no disponible o denegada:', err);
+      this.grabacionDenegada.set(true);
     }
   }
 
@@ -295,6 +297,7 @@ export class CandidateQuizPageComponent {
       this.grabandoAudio.set(true);
     } catch (err) {
       console.warn('Grabación de audio no disponible o denegada:', err);
+      this.grabacionDenegada.set(true);
     }
   }
 
@@ -312,13 +315,13 @@ export class CandidateQuizPageComponent {
     if (sesionBlob) {
       this.sesionesApi.subirGrabacion(this.sesionId(), sesionBlob)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+        .subscribe({ error: (err) => console.error('Error al subir grabación de pantalla:', err) });
     }
     const audioBlob = this.grabacionAudioBlob();
     if (audioBlob) {
       this.sesionesApi.subirAudio(this.sesionId(), audioBlob)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+        .subscribe({ error: (err) => console.error('Error al subir grabación de audio:', err) });
     }
   }
 

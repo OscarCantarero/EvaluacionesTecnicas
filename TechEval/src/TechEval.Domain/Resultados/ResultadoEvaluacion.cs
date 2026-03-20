@@ -56,10 +56,18 @@ public sealed class ResultadoEvaluacion : AgregadoRaiz
     /// <summary>Tiempo total empleado en la evaluación (segundos)</summary>
     public int TiempoTotalSegundos { get; private set; }
 
+    /// <summary>Umbral de aprobación (porcentaje mínimo para aprobar)</summary>
+    public const decimal UmbralAprobacion = 70m;
+
     /// <summary>Puntuaciones por pregunta</summary>
     private readonly List<PuntuacionPregunta> _puntuaciones = new();
 
     public IReadOnlyList<PuntuacionPregunta> Puntuaciones => _puntuaciones.AsReadOnly();
+
+    /// <summary>Transcripciones de sesión y entrevista</summary>
+    private readonly List<TranscripcionEvaluacion> _transcripciones = new();
+
+    public IReadOnlyList<TranscripcionEvaluacion> Transcripciones => _transcripciones.AsReadOnly();
 
     private ResultadoEvaluacion() { }
 
@@ -91,6 +99,14 @@ public sealed class ResultadoEvaluacion : AgregadoRaiz
     }
 
     /// <summary>
+    /// Agrega una transcripción de sesión o entrevista
+    /// </summary>
+    public void AgregarTranscripcion(TranscripcionEvaluacion transcripcion)
+    {
+        _transcripciones.Add(transcripcion);
+    }
+
+    /// <summary>
     /// Agrega una puntuación de pregunta
     /// </summary>
     public void AgregarPuntuacion(PuntuacionPregunta puntuacion)
@@ -102,7 +118,8 @@ public sealed class ResultadoEvaluacion : AgregadoRaiz
     }
 
     /// <summary>
-    /// Calcula la puntuación total basada en las puntuaciones de preguntas.
+    /// Calcula la puntuación total basada en las puntuaciones de preguntas y transcripciones con IA.
+    /// Cuando hay transcripciones evaluadas por IA, el porcentaje final es el promedio de todos los componentes.
     /// <paramref name="puntuacionMaximaEvaluacion"/> es la suma real de puntos posibles de la evaluación.
     /// </summary>
     public void CalcularPuntuacionTotal(decimal puntuacionMaximaEvaluacion = 0m)
@@ -123,10 +140,24 @@ public sealed class ResultadoEvaluacion : AgregadoRaiz
             ? puntuacionMaximaEvaluacion
             : PuntuacionTotal; // Fallback: si no se proporcionó, usar total como máximo
 
-        // Calcular porcentaje
-        PorcentajeObtenido = PuntuacionMaxima > 0
+        // Calcular porcentaje base de respuestas
+        var porcentajeRespuestas = PuntuacionMaxima > 0
             ? Math.Round((PuntuacionTotal / PuntuacionMaxima) * 100m, 2)
             : 0m;
+
+        // Incorporar transcripciones evaluadas por IA al promedio combinado
+        var transcripcionesConIA = _transcripciones.Where(t => t.PuntajeIA.HasValue).ToList();
+        if (transcripcionesConIA.Count > 0)
+        {
+            var componentesPuntaje = new List<decimal> { porcentajeRespuestas };
+            foreach (var t in transcripcionesConIA)
+                componentesPuntaje.Add(t.PuntajeIA!.Value);
+            PorcentajeObtenido = Math.Round(componentesPuntaje.Average(), 2);
+        }
+        else
+        {
+            PorcentajeObtenido = porcentajeRespuestas;
+        }
     }
 
     /// <summary>
@@ -149,18 +180,11 @@ public sealed class ResultadoEvaluacion : AgregadoRaiz
     }
 
     /// <summary>
-    /// Obtiene el estado general de la evaluación
+    /// Obtiene el estado general de la evaluación basado en el umbral de aprobación (70%).
     /// </summary>
     public string ObtenerEstadoGeneral()
     {
-        return PorcentajeObtenido switch
-        {
-            >= 90m => "Excelente",
-            >= 80m => "Muy Bueno",
-            >= 70m => "Bueno",
-            >= 60m => "Aceptable",
-            _ => "Insuficiente"
-        };
+        return PorcentajeObtenido >= UmbralAprobacion ? "Aprobado" : "No aprobado";
     }
 
     /// <summary>

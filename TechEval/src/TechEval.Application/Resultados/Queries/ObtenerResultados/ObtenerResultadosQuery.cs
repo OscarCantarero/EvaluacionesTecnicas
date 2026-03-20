@@ -25,7 +25,8 @@ public sealed record ObtenerResultadosResponse(
     int ViolacionesPestana,
     int TiempoTotalSegundos,
     string EstadoRevision,
-    List<PuntuacionPreguntaDto> Puntuaciones
+    List<PuntuacionPreguntaDto> Puntuaciones,
+    List<TranscripcionDto> Transcripciones
 );
 
 public sealed record PuntuacionPreguntaDto(
@@ -41,6 +42,16 @@ public sealed record PuntuacionPreguntaDto(
     string? UrlAdjunto,
     int TiempoEmpleadoSegundos,
     Guid PreguntaId
+);
+
+public sealed record TranscripcionDto(
+    Guid Id,
+    string Tipo,
+    string? Contenido,
+    string? UrlArchivo,
+    decimal? PuntajeIA,
+    string? JustificacionIA,
+    string Estado
 );
 
 public sealed class ObtenerResultadosQueryHandler : IRequestHandler<ObtenerResultadosQuery, ObtenerResultadosResponse>
@@ -102,6 +113,16 @@ public sealed class ObtenerResultadosQueryHandler : IRequestHandler<ObtenerResul
             PreguntaId: p.PreguntaSesionId
         )).ToList();
 
+        var transcripciones = resultado.Transcripciones.Select(t => new TranscripcionDto(
+            Id: t.Id,
+            Tipo: t.Tipo.ToString(),
+            Contenido: t.Contenido,
+            UrlArchivo: t.UrlArchivo,
+            PuntajeIA: t.PuntajeIA,
+            JustificacionIA: t.JustificacionIA,
+            Estado: t.Estado.ToString()
+        )).ToList();
+
         return new ObtenerResultadosResponse(
             ResultadoId: resultado.Id,
             SesionId: resultado.SesionId,
@@ -114,7 +135,8 @@ public sealed class ObtenerResultadosQueryHandler : IRequestHandler<ObtenerResul
             ViolacionesPestana: resultado.ViolacionesPestana,
             TiempoTotalSegundos: resultado.TiempoTotalSegundos,
             EstadoRevision: resultado.EstadoRevision.ToString(),
-            Puntuaciones: puntuaciones
+            Puntuaciones: puntuaciones,
+            Transcripciones: transcripciones
         );
     }
 
@@ -203,7 +225,8 @@ public sealed class ObtenerResultadosQueryHandler : IRequestHandler<ObtenerResul
             ViolacionesPestana: sesion.ContadorViolacionesPestana,
             TiempoTotalSegundos: 0,
             EstadoRevision: "Pendiente",
-            Puntuaciones: []
+            Puntuaciones: [],
+            Transcripciones: []
         );
     }
 }

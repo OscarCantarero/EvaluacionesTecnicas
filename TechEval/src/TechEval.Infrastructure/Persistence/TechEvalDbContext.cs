@@ -20,6 +20,7 @@ public sealed class TechEvalDbContext(DbContextOptions<TechEvalDbContext> option
     public DbSet<RespuestaCandidato> RespuestasCandidato => Set<RespuestaCandidato>();
     public DbSet<ResultadoEvaluacion> Resultados => Set<ResultadoEvaluacion>();
     public DbSet<PuntuacionPregunta> Puntuaciones => Set<PuntuacionPregunta>();
+    public DbSet<TranscripcionEvaluacion> Transcripciones => Set<TranscripcionEvaluacion>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

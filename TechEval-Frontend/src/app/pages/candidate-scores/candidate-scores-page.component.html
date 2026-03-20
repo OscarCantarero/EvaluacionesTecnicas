@@ -77,7 +77,13 @@
             </div>
 
             <div class="flex flex-wrap gap-2">
-              <span class="badge" [class.badge-success]="result.estadoGeneral === 'Excelente' || result.estadoGeneral === 'Muy Bueno'" [class.badge-warning]="result.estadoGeneral === 'Bueno' || result.estadoGeneral === 'Aceptable'" [class.badge-error]="result.estadoGeneral === 'Insuficiente'">{{ result.estadoGeneral }}</span>
+              @if (result.estadoGeneral === 'Aprobado') {
+                <span class="badge badge-success badge-lg">✓ Aprobado</span>
+              } @else if (result.estadoGeneral === 'No aprobado') {
+                <span class="badge badge-error badge-lg">✗ No aprobado</span>
+              } @else {
+                <span class="badge badge-outline">{{ result.estadoGeneral }}</span>
+              }
               <span class="badge badge-outline">{{ result.estadoRevision | label }}</span>
               @if (result.violacionesPestana > 0) {
                 <span class="badge badge-error badge-outline">{{ result.violacionesPestana }} violaciones de pestaña</span>

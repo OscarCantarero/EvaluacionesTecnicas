@@ -28,12 +28,24 @@ const LABELS: Record<string, string> = {
   Pendiente: 'Pendiente',
   EnRevision: 'En revisión',
 
-  // EstadoGeneral resultado
+  // EstadoGeneral resultado (nuevo: Aprobado/No aprobado)
+  Aprobado: 'Aprobado',
+  'No aprobado': 'No aprobado',
+
+  // EstadoGeneral resultado (legacy)
   Excelente: 'Excelente',
   'Muy Bueno': 'Muy bueno',
   Bueno: 'Bueno',
   Aceptable: 'Aceptable',
-  Insuficiente: 'Insuficiente'
+  Insuficiente: 'Insuficiente',
+
+  // EstadoTranscripcion
+  Subida: 'Subida',
+  EvaluadaPorIA: 'Evaluada por IA',
+
+  // TipoTranscripcion
+  Sesion: 'Sesión',
+  Entrevista: 'Entrevista'
 };
 
 @Pipe({ name: 'label', pure: true })

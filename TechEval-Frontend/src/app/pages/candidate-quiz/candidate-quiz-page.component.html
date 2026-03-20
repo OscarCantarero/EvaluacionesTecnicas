@@ -29,6 +29,9 @@
       @if (contadorViolaciones() > 0) {
         <span class="badge badge-error badge-outline">⚠ {{ contadorViolaciones() }} violación(es)</span>
       }
+      @if (grabacionDenegada()) {
+        <span class="badge badge-warning badge-outline text-xs">⚠ Grabación no activa (permiso denegado)</span>
+      }
     </div>
     </div>
   </header>

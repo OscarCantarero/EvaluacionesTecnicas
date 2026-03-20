@@ -90,6 +90,16 @@ public sealed class ResultadoEvaluacionConfiguration : IEntityTypeConfiguration<
         builder.Navigation(r => r.Puntuaciones)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        // Relación con TranscripcionEvaluacion
+        builder.HasMany(r => r.Transcripciones)
+            .WithOne()
+            .HasForeignKey("ResultadoEvaluacionId")
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(r => r.Transcripciones)
+            .HasField("_transcripciones")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         // Índices
         builder.HasIndex(r => r.SesionId)
             .IsUnique();
@@ -162,5 +172,23 @@ public sealed class PuntuacionPreguntaConfiguration : IEntityTypeConfiguration<P
 
         // Índices
         builder.HasIndex(p => p.PreguntaSesionId);
+    }
+}
+
+public sealed class TranscripcionEvaluacionConfiguration : IEntityTypeConfiguration<TranscripcionEvaluacion>
+{
+    public void Configure(EntityTypeBuilder<TranscripcionEvaluacion> builder)
+    {
+        builder.ToTable("transcripciones_evaluacion");
+        builder.HasKey(t => t.Id);
+        builder.Property(t => t.Id).ValueGeneratedNever();
+        builder.Property(t => t.Tipo).HasConversion<int>().IsRequired();
+        builder.Property(t => t.Contenido).HasMaxLength(50000);
+        builder.Property(t => t.UrlArchivo).HasMaxLength(500);
+        builder.Property(t => t.PuntajeIA).HasPrecision(5, 2);
+        builder.Property(t => t.JustificacionIA).HasMaxLength(5000);
+        builder.Property(t => t.Estado).HasConversion<int>().IsRequired();
+        builder.Property(t => t.CreadaEn).IsRequired();
+        builder.HasIndex(t => t.Tipo);
     }
 }

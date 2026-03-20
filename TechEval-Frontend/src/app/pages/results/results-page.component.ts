@@ -36,6 +36,15 @@ export class ResultsPageComponent {
   protected readonly totalItems = signal(0);
   protected readonly icons = ICONS;
 
+  // Transcripciones
+  protected readonly subiendoTranscripcion = signal(false);
+  protected readonly transcripcionMsg = signal<string | null>(null);
+  protected readonly transcripcionForm = this.fb.nonNullable.group({
+    tipo: ['Entrevista'],
+    contenido: ['']
+  });
+  protected readonly archivoTranscripcion = signal<File | null>(null);
+
   protected readonly puntajeForm = this.fb.nonNullable.group({
     preguntaId: ['', [Validators.required]],
     puntaje: [0, [Validators.required]],
@@ -207,5 +216,42 @@ export class ResultsPageComponent {
           this.abrirResultado(sesionId);
         }
       });
+  }
+
+  protected onArchivoTranscripcion(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.archivoTranscripcion.set(input.files?.[0] ?? null);
+  }
+
+  protected subirTranscripcion(): void {
+    const sesionId = this.sesionActiva();
+    if (!sesionId || this.subiendoTranscripcion()) return;
+    const value = this.transcripcionForm.getRawValue();
+    this.subiendoTranscripcion.set(true);
+    this.resultadosApi
+      .subirTranscripcion(sesionId, value.tipo, value.contenido.trim() || null, this.archivoTranscripcion())
+      .pipe(finalize(() => this.subiendoTranscripcion.set(false)))
+      .subscribe({
+        next: () => {
+          this.transcripcionMsg.set('Transcripción subida correctamente.');
+          this.transcripcionForm.reset({ tipo: 'Entrevista', contenido: '' });
+          this.archivoTranscripcion.set(null);
+          this.abrirResultado(sesionId);
+        }
+      });
+  }
+
+  protected evaluarTranscripcionIa(transcripcionId: string): void {
+    const sesionId = this.sesionActiva();
+    if (!sesionId || this.loadingAccion()) return;
+    this.loadingAccion.set(true);
+    this.resultadosApi
+      .evaluarTranscripcionConIa(
+        sesionId,
+        transcripcionId,
+        'Eres un evaluador técnico senior. Evalúa la transcripción y da un puntaje de 0 a 100.'
+      )
+      .pipe(finalize(() => this.loadingAccion.set(false)))
+      .subscribe({ next: () => this.abrirResultado(sesionId) });
   }
 }
