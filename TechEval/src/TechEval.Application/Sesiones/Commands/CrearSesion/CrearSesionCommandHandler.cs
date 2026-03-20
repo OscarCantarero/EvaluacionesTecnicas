@@ -1,6 +1,7 @@
 using MediatR;
 using TechEval.Application.Common.Exceptions;
 using TechEval.Application.Common.Interfaces;
+using TechEval.Domain.Common.ValueObjects;
 using TechEval.Domain.Evaluaciones.Repositorios;
 using TechEval.Domain.Sesiones;
 using TechEval.Domain.Sesiones.Repositorios;
@@ -30,6 +31,13 @@ public sealed class CrearSesionCommandHandler : IRequestHandler<CrearSesionComma
         // Verificar que el evaluador tenga permiso (lo hace el autorizer en controller)
         var evaluacion = await _repoEvaluacion.ObtenerConPreguntasAsync(command.EvaluacionId, cancellationToken)
             ?? throw new NotFoundException(nameof(Domain.Evaluaciones.Evaluacion), command.EvaluacionId);
+
+        // Auto-activar evaluación si está en estado Borrador (Épica 9.1)
+        if (evaluacion.Estado == EstadoEvaluacion.Borrador)
+        {
+            evaluacion.CambiarEstado(EstadoEvaluacion.Activa);
+            await _repoEvaluacion.ActualizarAsync(evaluacion, cancellationToken);
+        }
 
         // Preparar preguntas ordenadas según configuración
         var preguntasOrdenadas = evaluacion.Preguntas

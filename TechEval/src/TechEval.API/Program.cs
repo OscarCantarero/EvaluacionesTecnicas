@@ -30,9 +30,9 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((doc, _, _) =>
     {
-        doc.Info.Title = "TechEval API";
+        doc.Info.Title = "Plataforma de Evaluaciones Técnicas API";
         doc.Info.Version = "v1";
-        doc.Info.Description = "API para el sistema de evaluación técnica de candidatos TechEval. " +
+        doc.Info.Description = "API para la Plataforma de Evaluaciones Técnicas (PET). " +
                                "Endpoints para autenticación, gestión de evaluaciones, sesiones y resultados.";
         return System.Threading.Tasks.Task.CompletedTask;
     });
@@ -63,7 +63,7 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference(opts => opts.WithTitle("TechEval API"));
+    app.MapScalarApiReference(opts => opts.WithTitle("Plataforma de Evaluaciones Técnicas API"));
 }
 
 app.UseCors();

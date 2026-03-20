@@ -28,6 +28,7 @@ export class FormDetailPageComponent implements OnInit {
   protected readonly updatingEvaluacion = signal(false);
   protected readonly updatingPregunta = signal(false);
   protected readonly updatingOpcion = signal(false);
+  protected readonly activando = signal(false);
 
   private readonly opcionFormRef = viewChild<ElementRef>('opcionFormRef');
 
@@ -343,6 +344,15 @@ export class FormDetailPageComponent implements OnInit {
   protected eliminarPregunta(preguntaId: string): void {
     this.evaluacionesApi
       .eliminarPregunta(this.evaluacionId(), preguntaId)
+      .subscribe({ next: () => this.cargar() });
+  }
+
+  protected activarEvaluacion(): void {
+    if (this.activando()) return;
+    this.activando.set(true);
+    this.evaluacionesApi
+      .activarEvaluacion(this.evaluacionId())
+      .pipe(finalize(() => this.activando.set(false)))
       .subscribe({ next: () => this.cargar() });
   }
 }

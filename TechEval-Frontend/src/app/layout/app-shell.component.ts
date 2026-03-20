@@ -7,6 +7,7 @@ import { ThemeService } from '../core/ui/theme.service';
 import { ProblemBannerComponent } from '../shared/problem-banner/problem-banner.component';
 import { ICONS } from '../shared/icons/icons';
 import { SafeHtmlPipe } from '../shared/pipes/safe-html.pipe';
+import { ToastComponent } from '../shared/toast/toast.component';
 
 interface NavItem {
   readonly label: string;
@@ -16,7 +17,7 @@ interface NavItem {
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, ProblemBannerComponent, SafeHtmlPipe],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, ProblemBannerComponent, SafeHtmlPipe, ToastComponent],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -31,7 +31,10 @@
       </div>
     </article>
   } @else if (loading()) {
-    <p class="text-base-content/70">Cargando sesion...</p>
+    <div class="flex flex-col items-center gap-4 py-12">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="text-base-content/70">Cargando sesión...</p>
+    </div>
   } @else if (sesionCompletada()) {
     <article class="alert alert-success">
       <h3>Sesion completada</h3>

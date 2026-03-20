@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TechEval.Application.Evaluaciones.Commands.ActualizarEvaluacion;
+using TechEval.Application.Evaluaciones.Commands.ActivarEvaluacion;
 using TechEval.Application.Evaluaciones.Commands.CrearEvaluacion;
 using TechEval.Application.Evaluaciones.Commands.EliminarEvaluacion;
 using TechEval.Application.Evaluaciones.Queries.ListarEvaluaciones;
@@ -60,6 +61,14 @@ public sealed class EvaluacionesController(ISender sender) : ControllerBase
     public async Task<IActionResult> Eliminar(Guid id, CancellationToken cancellationToken)
     {
         await sender.Send(new EliminarEvaluacionCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>Activa una evaluación (cambia estado de Borrador a Activa).</summary>
+    [HttpPut("{id:guid}/activar")]
+    public async Task<IActionResult> Activar(Guid id, CancellationToken cancellationToken)
+    {
+        await sender.Send(new ActivarEvaluacionCommand(id), cancellationToken);
         return NoContent();
     }
 

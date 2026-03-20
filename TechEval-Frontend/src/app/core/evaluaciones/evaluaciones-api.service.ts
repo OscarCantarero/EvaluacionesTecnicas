@@ -47,6 +47,10 @@ export class EvaluacionesApiService {
     return this.http.put<void>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.evaluaciones}/${evaluacionId}`, payload);
   }
 
+  activarEvaluacion(evaluacionId: string) {
+    return this.http.put<void>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.evaluaciones}/${evaluacionId}/activar`, {});
+  }
+
   eliminarEvaluacion(evaluacionId: string) {
     return this.http.delete<void>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.evaluaciones}/${evaluacionId}`);
   }

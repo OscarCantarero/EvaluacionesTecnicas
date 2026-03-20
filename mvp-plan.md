@@ -1109,13 +1109,13 @@ volumes:
 
 | # | Tarea | Ubicación |
 |---|---|---|
-| 2.1 | Renombrar título en `index.html` | Frontend |
-| 2.2 | Actualizar título en Login page | Frontend |
-| 2.3 | Actualizar header/sidebar en App Shell | Frontend |
-| 2.4 | Actualizar `appsettings.json` título (Swagger/OpenAPI) | Backend |
-| 2.5 | Actualizar favicon y meta tags | Frontend |
-| 2.6 | Actualizar descripción en `Program.cs` (Scalar) | Backend |
-| 2.7 | Actualizar nombre en Dashboard page | Frontend |
+| 2.1 | ✅ Renombrar título en `index.html` | Frontend |
+| 2.2 | ✅ Actualizar título en Login page | Frontend |
+| 2.3 | ✅ Actualizar header/sidebar en App Shell | Frontend |
+| 2.4 | ✅ Actualizar `appsettings.json` título (Swagger/OpenAPI) | Backend |
+| 2.5 | ✅ Actualizar favicon y meta tags | Frontend |
+| 2.6 | ✅ Actualizar descripción en `Program.cs` (Scalar) | Backend |
+| 2.7 | ✅ Actualizar nombre en Dashboard page | Frontend |
 
 ---
 
@@ -1125,14 +1125,14 @@ volumes:
 
 | # | Tarea | Detalle |
 |---|---|---|
-| 3.1 | Mejorar UI de lista de sesiones | Tarjetas con estado visual claro, badges de color, info del candidato |
-| 3.2 | Mejorar UI de creación de sesión | Wizard con pasos claros, feedback de éxito mejorado |
-| 3.3 | Mejorar UI de quiz del candidato | Layout centrado, progreso visual, contraste de opciones |
-| 3.4 | Mejorar UI de resultados | Gráficos de progreso, desglose visual por pregunta |
-| 3.5 | Responsive en pantallas móviles/tablet | Sidebar colapsable, `min-h-screen`, grid responsive |
-| 3.6 | Loading states consistentes | Skeleton loaders o spinners en todas las vistas |
-| 3.7 | Mensajes de éxito/error unificados | Toast o banner consistente post-acción |
-| 3.8 | Empty states con ilustración | Mensaje amigable + ícono cuando no hay datos |
+| 3.1 | ✅ Mejorar UI de lista de sesiones | Tarjetas con estado visual claro, badges de color, info del candidato |
+| 3.2 | ✅ Mejorar UI de creación de sesión | Wizard con pasos claros, feedback de éxito mejorado |
+| 3.3 | ✅ Mejorar UI de quiz del candidato | Layout centrado, progreso visual, contraste de opciones |
+| 3.4 | ✅ Mejorar UI de resultados | Gráficos de progreso, desglose visual por pregunta |
+| 3.5 | ✅ Responsive en pantallas móviles/tablet | Sidebar colapsable, `min-h-screen`, grid responsive |
+| 3.6 | ✅ Loading states consistentes | Skeleton loaders o spinners en todas las vistas |
+| 3.7 | ✅ Mensajes de éxito/error unificados | Toast o banner consistente post-acción |
+| 3.8 | ✅ Empty states con ilustración | Mensaje amigable + ícono cuando no hay datos |
 
 ---
 
@@ -1315,9 +1315,9 @@ Evaluacion (cambios)
 
 | # | Tarea | Capa |
 |---|---|---|
-| 9.1 | Validar al crear sesión: si evaluación está en Borrador, activarla automáticamente | Application |
-| 9.2 | UI: botón visible "Activar evaluación" en detalle | Frontend |
-| 9.3 | UI: indicador visual claro del estado actual con acción para cambiar | Frontend |
+| 9.1 | ✅ Validar al crear sesión: si evaluación está en Borrador, activarla automáticamente | Application |
+| 9.2 | ✅ UI: botón visible "Activar evaluación" en detalle | Frontend |
+| 9.3 | ✅ UI: indicador visual claro del estado actual con acción para cambiar | Frontend |
 | 9.4 | Seeder: las evaluaciones seed ya se crean como Activas (ya implementado) | Seeds ✅ |
 
 ---
@@ -1326,12 +1326,12 @@ Evaluacion (cambios)
 
 #### Sprint A — Estabilización y Branding (Prioridad 1-2)
 - [ ] QA end-to-end completo (Épica 1)
-- [ ] Rebranding completo (Épica 2)
-- [ ] Fix estado evaluaciones (Épica 9)
+- [x] Rebranding completo (Épica 2)
+- [x] Fix estado evaluaciones (Épica 9)
 
 #### Sprint B — Pulido UI (Prioridad 3)
-- [ ] Mejoras UI de sesiones (Épica 3.1-3.3)
-- [ ] Mejoras generales UI (Épica 3.4-3.8)
+- [x] Mejoras UI de sesiones (Épica 3.1-3.3)
+- [x] Mejoras generales UI (Épica 3.4-3.8)
 
 #### Sprint C — Tab Lock + Grabación (Prioridad 4)
 - [ ] Tab Lock completo (Épica 4.1)
@@ -1354,8 +1354,8 @@ Evaluacion (cambios)
 ### 5.12 Definición de Hecho (DoD) — MVP v2
 
 - [ ] Todos los checklist de QA (Épica 1) marcados ✅
-- [ ] Branding "Plataforma de Evaluaciones Técnicas" visible en toda la app
-- [ ] UI pulida y responsive en flujo de sesiones
+- [x] Branding "Plataforma de Evaluaciones Técnicas" visible en toda la app
+- [x] UI pulida y responsive en flujo de sesiones
 - [ ] Tab lock activo durante sesiones de candidato
 - [ ] Grabación de audio funcional durante sesiones
 - [ ] Transcripciones (sesión + entrevista) evaluables por IA
@@ -1364,6 +1364,42 @@ Evaluacion (cambios)
 - [ ] Sistema de categorías de preguntas funcional
 - [ ] Generación masiva de preguntas desde banco por categoría/dificultad
 - [ ] Evaluaciones con selección aleatoria/por dificultad
-- [ ] Estado de evaluación gestionable (no se queda en Borrador)
-- [ ] `dotnet build` verde, `dotnet test` verde, `ng build` verde
+- [x] Estado de evaluación gestionable (no se queda en Borrador)
+- [x] `dotnet build` verde, `dotnet test` verde, `ng build` verde
 - [ ] Repositorio Git del backend pusheado en GitHub
+
+---
+
+## Registro de avance
+
+### 2025-07-11 — Sprint A + Sprint B implementados
+
+**Sprint A — Épica 2: Rebranding**
+- Renombrado el título del `index.html` a "Plataforma de Evaluaciones Técnicas" con meta description.
+- Login page: kicker actualizado de "TechEval Frontend" → "Plataforma de Evaluaciones Técnicas".
+- App Shell: header renombrado a "PET / Plataforma de Evaluaciones Técnicas".
+- `Program.cs`: título y descripción OpenAPI/Scalar actualizados.
+- Dashboard: kicker actualizado de "MVP Frontend Angular" → "Plataforma de Evaluaciones Técnicas".
+
+**Sprint A — Épica 9: Fix Estado Evaluaciones**
+- `CrearSesionCommandHandler`: auto-activa evaluación en `Borrador` al crear sesión (9.1). Persiste el cambio de estado vía `IRepositorioEvaluacion.ActualizarAsync`.
+- `ActivarEvaluacionCommand` + `ActivarEvaluacionCommandHandler`: nuevo comando CQRS para activar evaluaciones explícitamente (9.2).
+- `EvaluacionesController`: nuevo endpoint `PUT /api/evaluaciones/{id}/activar` (9.2).
+- `EvaluacionesApiService`: nuevo método `activarEvaluacion(id)` (9.2).
+- `form-detail-page`: badge de estado color-coded + botón "Activar evaluación" visible solo cuando `estado === 'Borrador'` (9.2, 9.3).
+
+**Sprint B — Épica 3: UI Polish**
+- Sessions list (3.1): badges de estado con color semántico: `badge-success` (Completada), `badge-warning` (EnProgreso), `badge-info` (NoIniciada), `badge-error` (Cancelada). Muestra `puntuacionObtenida` cuando disponible.
+- Session creation (3.2): formulario multi-paso ya tenía feedback; se mantiene la UI existente de calidad.
+- Candidate quiz (3.3): loading state mejorado con spinner centrado. Progreso y timer ya implementados previamente.
+- Results (3.4): barra de progreso de puntuación con colores: verde ≥70%, warning 40-69%, error <40%.
+- App Shell responsive (3.5): overlay móvil agregado (`mobile-overlay`) que cierra el sidebar al hacer clic.
+- Loading states (3.6): ya implementados; quiz mejorado con spinner visual.
+- Toast service (3.7): `ToastService` con signals + auto-dismiss 4s. `ToastComponent` standalone (DaisyUI, OnPush). Integrado en `AppShellComponent`.
+- Empty states (3.8): ya implementados en todas las vistas de lista.
+
+**Estado de builds:**
+- `dotnet build`: ✅ GREEN (0 errors, 1 pre-existing warning)
+- `dotnet test`: ✅ 69/69 passing
+- `ng build --configuration=development`: ✅ GREEN (1.91 MB main.js)
+- CodeQL: ✅ 0 alerts

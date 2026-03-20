@@ -64,8 +64,21 @@
         <header class="summary">
           <h3>{{ res.tituloEvaluacion }}</h3>
           <p class="text-base-content/70">{{ res.nombreCandidato }}</p>
-          <p><strong>{{ res.puntuacionTotal }}</strong> / {{ res.puntuacionMaxima }} ({{ res.porcentajeObtenido }}%)</p>
-          <p>
+          <div class="flex items-center gap-4 mt-2 flex-wrap">
+            <div>
+              <p class="text-2xl font-bold text-primary">{{ res.puntuacionTotal }} <span class="text-base font-normal text-base-content/60">/ {{ res.puntuacionMaxima }}</span></p>
+              <p class="text-sm text-base-content/60">{{ res.porcentajeObtenido }}% obtenido</p>
+            </div>
+            <progress
+              class="progress w-40"
+              [class.progress-success]="res.porcentajeObtenido >= 70"
+              [class.progress-warning]="res.porcentajeObtenido >= 40 && res.porcentajeObtenido < 70"
+              [class.progress-error]="res.porcentajeObtenido < 40"
+              [value]="res.porcentajeObtenido"
+              max="100"
+            ></progress>
+          </div>
+          <p class="mt-2">
             Estado: <span class="badge badge-sm badge-outline">{{ res.estadoGeneral | label }}</span>
             · Revisión: <span class="badge badge-sm badge-outline">{{ res.estadoRevision | label }}</span>
           </p>

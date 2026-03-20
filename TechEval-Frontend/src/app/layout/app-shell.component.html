@@ -5,8 +5,8 @@
 
   <div class="navbar-start gap-3 lg:gap-4">
     <div>
-      <p class="ui-kicker">TechEval</p>
-      <h1 class="text-lg md:text-2xl font-semibold">Control de Evaluaciones</h1>
+      <p class="ui-kicker">PET</p>
+      <h1 class="text-lg md:text-2xl font-semibold">Plataforma de Evaluaciones Técnicas</h1>
     </div>
   </div>
 
@@ -49,8 +49,13 @@
     </nav>
   </aside>
 
+  @if (menuOpen()) {
+    <div class="mobile-overlay lg:hidden" (click)="closeMenu()" aria-hidden="true"></div>
+  }
+
   <main class="content bg-base-200">
     <app-problem-banner />
     <router-outlet></router-outlet>
+    <app-toast />
   </main>
 </div>
